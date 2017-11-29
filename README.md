@@ -1,23 +1,26 @@
+### This fork shows attacks from T-Pot
+
+The honeypot software can be found here:
+https://dtag-dev-sec.github.io/mediator/feature/2016/10/31/t-pot-16.10.html
+
+The javascript was made by MatthewClarkMay
+https://github.com/MatthewClarkMay/geoip-attack-map
+
+
+
 ### First and Foremost
-I do not have much time in my life right now to maintain this project. I undertook this challenge as a means to learn JavaScript, and to improve upon the Python I already knew. I'm sure there are several things I could have done differently in my implementation, and I won't be offended if I receive constructive criticism from someone who downloads and views my code. I know I learned a ton when working on this, and I hope the open source community will continue to teach me things :)
+thanks to MatthewClarkMay for the first version. Please let me know if you find any bugs.
 
 ### Cyber Security GeoIP Attack Map Visualization
-This geoip attack map visualizer was developed to display network attacks on your organization in real time. The data server follows a syslog file, and parses out source IP, destination IP, source port, and destination port. Protocols are determined via common ports, and the visualizations vary in color based on protocol type. [CLICK HERE](https://www.youtube.com/watch?v=zTvLJjTzJnU) for a demo video. This project would not be possible if it weren't for Sam Cappella, who created a cyber defense competition network traffic visualizer for the 2015 Palmetto Cyber Defense Competition. I mainly used his code as a reference, but I did borrow a few functions while creating the display server, and visual aspects of the webapp. I would also like to give special thanks to [Dylan Madisetti](http://www.dylanmadisetti.com/) as well for giving me advice about certain aspects of my implementation.
+This geoip attack map visualizer was developed to display network attacks on your organization in real time. The data server connects to elasticsearch, and parses out source IP, destination IP, source port, and destination port. Protocols are determined via common ports, and the visualizations vary in color based on protocol type. [CLICK HERE](https://www.youtube.com/watch?v=zTvLJjTzJnU) for a demo video. This project would not be possible if it weren't for Sam Cappella, who created a cyber defense competition network traffic visualizer for the 2015 Palmetto Cyber Defense Competition. I mainly used his code as a reference, but I did borrow a few functions while creating the display server, and visual aspects of the webapp. I would also like to give special thanks to [Dylan Madisetti](http://www.dylanmadisetti.com/) as well for giving me advice about certain aspects of my implementation.
 
 ### Important
-This program relies entirely on syslog, and because all appliances format logs differently, you will need to customize the log parsing function(s). If your organization uses a security information and event management system (SIEM), it can probably normalize logs to save you a ton of time writing regex.
-1. Send all syslog to SIEM.
-2. Use SIEM to normalize logs.
-3. Send normalized logs to the box (any Linux machine running syslog-ng will work) running this software so the data server can parse them.
+This program relies entirely on elasticsearch for geolookup, and because all appliances format logs differently, you will need to customize the log parsing function(s).
 
 ### Configs 
 1. Make sure in **/etc/redis/redis.conf** to change **bind 127.0.0.1** to **bind 0.0.0.0** if you plan on running the DataServer on a different machine than the AttackMapServer.
 2. Make sure that the WebSocket address in **/AttackMapServer/index.html** points back to the IP address of the **AttackMapServer** so the browser knows the address of the WebSocket.
-3. Download the MaxMind GeoLite2 database, and change the db_path variable in **DataServer.py** to the wherever you store the database.
-    * ./db-dl.sh
-4. Add headquarters latitude/longitude to hqLatLng variable in **index.html**
-5. Use syslog-gen.py, or syslog-gen.sh to simulate dummy traffic "out of the box."
-6. **IMPORTANT: Remember, this code will only run correctly in a production environment after personalizing the parsing functions. The default parsing function is only written to parse ./syslog-gen.sh traffic.**
+3. Add headquarters latitude/longitude to hqLatLng variable in **index.html**
 
 ### Bugs, Feedback, and Questions
 If you find any errors or bugs, please let me know. Questions and feedback are also welcome, and can be sent to mcmay.web@gmail.com, or open an issue in this repository.
@@ -53,44 +56,16 @@ Tested on Ubuntu 16.04 LTS.
   redis-server
 
   ```
-* Configure the Data Server DB:
-  
-    ```sh
-  cd DataServerDB
-  ./db-dl.sh
-  cd ..
-
-  ```
 * Start the Data Server:
 
     ```sh
-  cd DataServer
-  sudo python3 DataServer.py
+ python DataServer_v2.py
 
   ```
-  
-* Start the Syslog Gen Script, inside DataServer directory:
-
-  * Open a new terminal tab (Ctrl+Shift+T, on Ubuntu).
-  
-    ```sh
-    ./syslog-gen.py
-    ./syslog-gen.sh
-    ```
-
-* Configure the Attack Map Server, extract the flags to the right place:
-
-  * Open a new terminal tab (Ctrl+Shift+T, on Ubuntu).
-  
-    ```sh
-    cd AttackMapServer/
-    unzip static/flags.zip
-    ``` 
- 
 * Start the Attack Map Server:
   
     ```sh
-    sudo python3 AttackMapServer.py
+    python AttackMapServer.py
     ```
  
 * Access the Attack Map Server from browser:
