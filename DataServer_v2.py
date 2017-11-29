@@ -14,7 +14,7 @@ es = Elasticsearch('10.0.0.109')
 redis_ip = '127.0.0.1'
 redis_instance = None
 
-dst_ip = "87.233.192.218"
+dst_ip = "87.233.X.X"
 dst_lat = 52.305610
 dst_long = 4.932533
 event_count = 1
