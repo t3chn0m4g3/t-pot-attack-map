@@ -4,14 +4,14 @@
 // - AttackMapServer machine:
 //   - Internal IP: 127.0.0.1
 //   - External IP: 192.168.11.106
-var webSock = new WebSocket("ws:/192.168.1.100:8888/websocket"); // Internal
+var webSock = new WebSocket("ws://map.edworks.info:8888/websocket"); // Internal
 //var webSock = new WebSocket("ws:/192.168.1.100:8888/websocket"); // External
 
 // link map
 L.mapbox.accessToken = "pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g";
 var map = L.mapbox.map("map", "mapbox.dark", {
-center: [0, 0], // lat, long
-zoom: 2
+center: [-2, 10], // lat, long
+zoom: 3
 });
 
 // add full screen option
@@ -248,80 +248,6 @@ function prependAttackRow(id, args) {
     element.insertBefore(tr, element.firstChild);
 }
 
-function prependTypeRow(id, args) {
-    var tr = document.createElement('tr');
-    count = args.length;
-
-    for (var i = 0; i < count; i++) {
-        var td = document.createElement('td');
-        var textNode = document.createTextNode(args[i]);
-        td.appendChild(textNode);
-        tr.appendChild(td);
-    }
-
-    var element = document.getElementById(id);
-    var rowCount = element.rows.length;
-
-    // Only allow 50 rows
-    if (rowCount >= 50) {
-        element.deleteRow(rowCount -1);
-    }
-
-    element.insertBefore(tr, element.firstChild);
-}
-
-function prependCVERow(id, args) {
-    var tr = document.createElement('tr');
-
-    //count = args.length;
-    count = 1;
-
-    for (var i = 0; i < count; i++) {
-        var td1 = document.createElement('td');
-        var td2 = document.createElement('td');
-        var td3 = document.createElement('td');
-        var td4 = document.createElement('td');
-
-        // Timestamp
-        var textNode2 = document.createTextNode(args[0]);
-        td1.appendChild(textNode2);
-        tr.appendChild(td1);
-
-        // Exploit
-        var textNode = document.createTextNode(args[1]);
-
-        var alink = document.createElement('a');
-        alink.setAttribute("href",args[1]);
-        alink.setAttribute("target","_blank")
-        alink.style.color = "white";
-        alink.appendChild(textNode);
-
-        td2.appendChild(alink);
-        tr.appendChild(td2);
-
-        // Flag
-        var path = 'flags/' + args[2] + '.png';
-        var img = document.createElement('img');
-        img.src = path;
-        td3.appendChild(img);
-        tr.appendChild(td3);
-
-        // IP
-        var textNode3 = document.createTextNode(args[3]);
-        td4.appendChild(textNode3);
-        tr.appendChild(td4);
-    }
-
-    var element = document.getElementById(id);
-    var rowCount = element.rows.length;
-
-    // Only allow 50 rows
-    if (rowCount >= 50) {
-        element.deleteRow(rowCount -1);
-    }
-
-    element.insertBefore(tr, element.firstChild);
-}
 
 
 function redrawCountIP(hashID, id, countList, codeDict) {

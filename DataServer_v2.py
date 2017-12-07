@@ -14,7 +14,7 @@ es = Elasticsearch('10.0.0.109')
 redis_ip = '127.0.0.1'
 redis_instance = None
 
-dst_ip = "87.233.X.X"
+dst_ip = "87.233.192.218"
 dst_lat = 52.305610
 dst_long = 4.932533
 event_count = 1
@@ -88,6 +88,8 @@ def get_honeypot_data():
         if len(processed_data) != 0:
             push(processed_data)
             processed_data = []
+
+
         time.sleep(1)
         #exit()
 
@@ -279,7 +281,11 @@ def push(alerts):
 
 if __name__ == '__main__':
     try:
-        get_honeypot_data()
+        while True:
+            try:
+                get_honeypot_data()
+            except:
+                print "failed"
     except KeyboardInterrupt:
         print('\nSHUTTING DOWN')
         exit()

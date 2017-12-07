@@ -58,15 +58,15 @@ Tested on Ubuntu 16.04 LTS.
   ```
 * Start the Data Server:
 
-    ```sh
- python DataServer_v2.py
+  ```sh
+  python DataServer_v2.py
 
   ```
 * Start the Attack Map Server:
   
-    ```sh
-    python AttackMapServer.py
-    ```
+  ```sh
+  python AttackMapServer.py
+  ```
  
 * Access the Attack Map Server from browser:
 
