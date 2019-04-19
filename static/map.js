@@ -4,7 +4,7 @@
 // - AttackMapServer machine:
 //   - Internal IP: 127.0.0.1
 //   - External IP: 192.168.11.106
-var webSock = new WebSocket("ws://map.edworks.info:8888/websocket"); // Internal
+var webSock = new WebSocket("ws://87.233.6.250:13337/websocket"); // Internal
 //var webSock = new WebSocket("ws:/192.168.1.100:8888/websocket"); // External
 
 // link map
@@ -207,7 +207,7 @@ function addCircle(msg, srcLatLng) {
     circleArray = circles.getLayers();
 
     // Only allow 50 circles to be on the map at a time
-    if (circleCount >= 500) {
+    if (circleCount >= 5000) {
         circles.removeLayer(circleArray[0]);
     }
 

@@ -27,7 +27,7 @@ service_rgb = {
     'DNS': '#00ff80',
     'HTTP': '#00ffff',
     'HTTPS': '#0080ff',
-    'SQL': '#0000ff',
+    'VNC': '#0000ff',
     'SNMP': '#8000ff',
     'SMB': '#bf00ff',
     'AUTH': '#ff00ff',
@@ -88,6 +88,7 @@ class WebSocketChatHandler(tornado.websocket.WebSocketHandler):
             json_data = json.loads(msg.body)
         except Exception as ex:
             print "json error"
+            print msg.body
             return None
         #
         # if 'msg_type' in json_data:
@@ -254,7 +255,7 @@ def main():
     # Create and start app listening on port 8888
     try:
         app = tornado.web.Application(handlers, **settings)
-        app.listen(8888)
+        app.listen(13337)
         print('[*] Waiting on browser connections...')
         tornado.ioloop.IOLoop.instance().start()
     except Exception as appFail:
