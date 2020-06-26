@@ -8,11 +8,11 @@ var webSock = new WebSocket("ws://87.233.6.250:13337/websocket"); // Internal
 //var webSock = new WebSocket("ws:/192.168.1.100:8888/websocket"); // External
 
 // link map
-L.mapbox.accessToken = "pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g";
-var map = L.mapbox.map("map", "mapbox.dark", {
-center: [-2, 10], // lat, long
-zoom: 3
-});
+L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
+ 
+var map = L.mapbox.map('map')
+.setView([0, -4.932], 3)
+.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'));
 
 // add full screen option
 L.control.fullscreen().addTo(map);
