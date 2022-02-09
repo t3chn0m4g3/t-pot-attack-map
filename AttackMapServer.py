@@ -87,8 +87,8 @@ class WebSocketChatHandler(tornado.websocket.WebSocketHandler):
         try:
             json_data = json.loads(msg.body)
         except Exception as ex:
-            print "json error"
-            print msg.body
+            print("json error")
+            print(msg.body)
             return None
         #
         # if 'msg_type' in json_data:
