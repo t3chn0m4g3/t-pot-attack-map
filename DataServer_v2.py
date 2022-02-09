@@ -10,7 +10,7 @@ import tornado.web
 import tornado.websocket
 
 app = Flask(__name__)
-es = Elasticsearch('elasticsearch:64298')
+es = Elasticsearch('elasticsearch:9200')
 #es2 = Elasticsearch('snorlax.true.nl:9200')
 redis_ip = 'map_redis'
 redis_instance = None
