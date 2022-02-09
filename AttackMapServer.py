@@ -59,7 +59,7 @@ class WebSocketChatHandler(tornado.websocket.WebSocketHandler):
 
         try:
             # This is the IP address of the DataServer
-            self.client = tornadoredis.Client('127.0.0.1')
+            self.client = tornadoredis.Client('map_redis')
             self.client.connect()
             print('[*] Connected to Redis server')
             yield tornado.gen.Task(self.client.subscribe, 'attack-map-production')
