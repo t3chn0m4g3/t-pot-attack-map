@@ -4,7 +4,9 @@
 // - AttackMapServer machine:
 //   - Internal IP: 127.0.0.1
 //   - External IP: 192.168.11.106
-var webSock = new WebSocket("ws://87.233.6.250:13337/websocket"); // Internal
+const WS_HOST = 'ws://'+window.location.host+':13337/websocket'
+//var webSock = new WebSocket("ws://87.233.6.250:13337/websocket"); // Internal
+var webSock = new WebSocket(WS_HOST); // Internal
 //var webSock = new WebSocket("ws:/192.168.1.100:8888/websocket"); // External
 
 // link map
