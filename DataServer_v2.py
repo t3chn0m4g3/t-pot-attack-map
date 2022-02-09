@@ -186,7 +186,7 @@ def process_data(hit):
     #     alert["src_port"] = hit["_source"]["src_port"]
     # elif hit["_source"]["type"] == "log":
     #     pass
-    print hit["_source"]["type"]
+    print(hit["_source"]["type"])
     if hit["_source"]["type"] == "Mailoney":
         alert["detect_source"] = "Mailoney"
         alert["dst_port"] = hit["_source"]["dest_port"]
@@ -199,7 +199,7 @@ def process_data(hit):
         alert["dst_port"] = hit["_source"]["dest_port"]
         alert["msg_type"] = hit["_source"].get("ip_rep", 1)
         alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        print alert["protocol"],hit["_source"]["dest_port"]
+        print(alert["protocol"],hit["_source"]["dest_port"])
         alert["src_ip"] = hit["_source"]["src_ip"]
         alert["src_port"] = hit["_source"]["src_port"]
     elif hit["_source"]["type"] == "Rdpy":
@@ -253,7 +253,7 @@ def process_data(hit):
         alert["src_ip"] = hit["_source"]["src_ip"]
         alert["src_port"] = hit["_source"]["src_port"]
     else:
-        print "no type matched", json.dumps(hit)
+        print("no type matched", json.dumps(hit))
         #time.sleep(5)
         #time.sleep(5)
 #        print hit
@@ -264,7 +264,7 @@ def process_data(hit):
 
         return alert
     else:
-        print "SRC IP EMPTY"
+        print("SRC IP EMPTY")
 
 
 def port_to_type(port):
@@ -376,7 +376,7 @@ if __name__ == '__main__':
             try:
                 get_honeypot_data()
             except:
-                print "failed"
+                print("failed")
                 time.sleep(5)
 
     except KeyboardInterrupt:
