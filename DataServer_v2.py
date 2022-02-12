@@ -10,7 +10,7 @@ import tornado.web
 import tornado.websocket
 
 app = Flask(__name__)
-es = Elasticsearch('elasticsearch:9200')
+es = Elasticsearch('http://elasticsearch:9200')
 #es2 = Elasticsearch('snorlax.true.nl:9200')
 redis_ip = 'map_redis'
 redis_instance = None
@@ -140,13 +140,6 @@ def process_data(hit):
     #         print hit
     #         time.sleep(5)
     #
-    # elif hit["_source"]["type"] == "Glastopf":
-    #     alert["detect_source"]  = "Glastopf"
-    #     alert["dst_port"]       = hit["_source"]["dest_port"]
-    #     alert["msg_type"]       = hit["_source"]["message"]
-    #     alert["protocol"]       = port_to_type(hit["_source"]["dest_port"])
-    #     alert["src_ip"]         = hit["_source"]["src_ip"]
-    #     alert["src_port"]       = "0"
     # elif hit["_source"]["type"] == "Dionaea":
     #     alert["detect_source"]  = "Dionaea"
     #     alert["dst_port"]       = hit["_source"]["dest_port"]
@@ -162,20 +155,6 @@ def process_data(hit):
     #     alert["protocol"]       = port_to_type(hit["_source"]["dest_port"])
     #     alert["src_ip"]         = hit["_source"]["src_ip"]
     #     alert["src_port"]       = "0"
-    # elif hit["_source"]["type"] == "Vnclowpot":
-    #     alert["detect_source"]  = "Vnclowpot"
-    #     alert["dst_port"]       = hit["_source"]["dest_port"]
-    #     alert["msg_type"]       = hit["_source"].get("payload", 1)
-    #     alert["protocol"]       = port_to_type(hit["_source"]["dest_port"])
-    #     alert["src_ip"]         = hit["_source"]["src_ip"]
-    #     alert["src_port"]       = hit["_source"]["src_port"]
-    # elif hit["_source"]["type"] == "Rdpy":
-    #     alert["detect_source"]  = "Rdpy"
-    #     alert["dst_port"]       = hit["_source"]["dest_port"]
-    #     alert["msg_type"]       = hit["_source"].get("message", 1)
-    #     alert["protocol"]       = port_to_type(hit["_source"]["dest_port"])
-    #     alert["src_ip"]         = hit["_source"]["src_ip"]
-    #     alert["src_port"]       = hit["_source"]["src_port"]
     # elif hit["_source"]["type"] == "Heralding":
     #     print json.dumps(hit)
     #     alert["detect_source"] = "Heralding"
@@ -382,4 +361,3 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('\nSHUTTING DOWN')
         exit()
-
