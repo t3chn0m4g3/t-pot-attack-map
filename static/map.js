@@ -23,10 +23,10 @@ L.control.fullscreen().addTo(map);
 var hqLatLng = new L.LatLng(52.3058, 4.932);
 
 // hq marker
-L.circle(hqLatLng, 110000, {
-color: 'green',
-fillColor: 'green',
-fillOpacity: 1,
+L.circle(hqLatLng, 55000, {
+color: '#E20074',
+fillColor: '#E20074',
+fillOpacity: 0.2,
 }).addTo(map);
 
 // Append <svg> to map
