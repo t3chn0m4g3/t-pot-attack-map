@@ -34,7 +34,7 @@ service_rgb = {
     'RDP': '#ff0060',
     'DoS': '#ff0000',
     'ICMP': '#ffcccc',
-    'OTHER': '#6600cc'
+    'OTHER': '#ffffff'
 }
 
 
