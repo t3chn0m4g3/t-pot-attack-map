@@ -204,8 +204,7 @@ def process_data(hit):
             if hit["_source"]["dest_port"] == 23 or hit["_source"]["dest_port"] == 2323:
                 alert["dst_port"] = 23
                 alert["protocol"] = "TELNET"
-
-            elif "SSH" in hit["_source"]["message"] or ":2222" in hit["_source"]["message"] or ":22" in hit["_source"]["message"] or "SSH" in hit["_source"]["system"]:
+            elif hit["_source"]["dest_port"] == 22 or hit["_source"]["dest_port"] == 2222:
                 alert["dst_port"] = 22
                 alert["protocol"] = "SSH"
             alert["detect_source"] = "Cowrie"
@@ -535,7 +534,7 @@ def push(alerts):
                 "Liberia": "LR",
                 "Libyan Arab Jamahiriya": "LY",
                 "Liechtenstein": "LI",
-                "Lithuania": "LT",
+                "Republic of Lithuania": "LT",
                 "Luxembourg": "LU",
                 "Macao": "MO",
                 "Macedonia: The Former Yugoslav Republic of": "MK",
@@ -678,7 +677,7 @@ def push(alerts):
         #json_data["continents_tracked"] = continent_tracked
         json_data["countries_tracked"] = countries_tracked
         tmp = json.dumps(json_data)
-        time.sleep(0.2)
+        time.sleep(0.1)
         #print tmp
         redis_instance.publish('attack-map-production', tmp)
 
@@ -695,7 +694,7 @@ if __name__ == '__main__':
                 get_honeypot_data()
             except:
                 print("failed")
-                time.sleep(5)
+                time.sleep(1)
 
     except KeyboardInterrupt:
         print('\nSHUTTING DOWN')
