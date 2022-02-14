@@ -551,7 +551,7 @@ def push(alerts):
                 "Mayotte": "YT",
                 "Mexico": "MX",
                 "Micronesia: Federated States of": "FM",
-                "Moldova: Republic of": "MD",
+                "Republic of Moldova": "MD",
                 "Monaco": "MC",
                 "Mongolia": "MN",
                 "Montserrat": "MS",
