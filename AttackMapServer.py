@@ -23,17 +23,17 @@ service_rgb = {
     'SSH': '#ff8000',
     'TELNET': '#ffff00',
     'EMAIL': '#80ff00',
-    'WHOIS': '#00ff00',
+    'SQL': '#00ff00',
     'DNS': '#00ff80',
     'HTTP': '#00ffff',
     'HTTPS': '#0080ff',
     'VNC': '#0000ff',
     'SNMP': '#8000ff',
     'SMB': '#bf00ff',
-    'AUTH': '#ff00ff',
+    'MEDICAL': '#ff00ff',
     'RDP': '#ff0060',
-    'DoS': '#ff0000',
-    'ICMP': '#ffcccc',
+    'SIP': '#ff0000',
+    'ADB': '#ffcccc',
     'OTHER': '#ffffff'
 }
 

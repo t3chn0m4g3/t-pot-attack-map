@@ -35,17 +35,17 @@ service_rgb = {
     'SSH': '#ff8000',
     'TELNET': '#ffff00',
     'EMAIL': '#80ff00',
-    'WHOIS': '#00ff00',
+    'SQL': '#00ff00',
     'DNS': '#00ff80',
     'HTTP': '#00ffff',
     'HTTPS': '#0080ff',
     'VNC': '#0000ff',
     'SNMP': '#8000ff',
     'SMB': '#bf00ff',
-    'AUTH': '#ff00ff',
+    'MEDICAL': '#ff00ff',
     'RDP': '#ff0060',
     'SIP': '#ff0000',
-    'ICMP': '#ffcccc',
+    'ADB': '#ffcccc',
     'OTHER': '#ffffff'
 }
 
@@ -109,7 +109,9 @@ def get_honeypot_data():
 def process_data(hit):
     global dst_ip,dst_lat,dst_long
     alert = {}
-    alert["as_org"] = hit["_source"]["geoip"].get("as_org", "")
+    #alert["as_org"] = hit["_source"]["geoip"].get("as_org", "")
+    # We want the Honeypot name instead of the AS
+    alert["as_org"] = hit["_source"]["type"]
     alert["country"] = hit["_source"]["geoip"].get("country_name", "")
     alert["country_code"] = hit["_source"]["geoip"].get("country_code2", "")
     alert["continent_code"] = hit["_source"]["geoip"].get("continent_code", "")
@@ -345,11 +347,9 @@ def process_data(hit):
 def port_to_type(port):
     port = int(port)
     try:
-        if port == 80 or port == 8080:
-            return "HTTP"
-        if port == 21:
+        if port == 21 or port == 20:
             return "FTP"
-        if port == 22 :
+        if port == 22 or port == 2222:
             return "SSH"
         if port == 23 or port == 2223:
             return "TELNET"
@@ -357,18 +357,26 @@ def port_to_type(port):
             return "EMAIL"
         if port == 53:
             return "DNS"
-        if port == 443 or port == 4443 or port == 8443:
-            return "HTTPS"
-        if port == 5900:
-            return "VNC"
-        if port == 161 or port == 1900:
+        if port == 80 or port == 81 or port == 8080:
+            return "HTTP"
+        if port == 161:
             return "SNMP"
+        if port == 443 or port == 8443:
+            return "HTTPS"
         if port == 445:
             return "SMB"
-        if port == 3389: #or port == 5900:
+        if port == 1433 or port == 1521 or port == 3306:
+            return "SQL"
+        if port == 2575 or port == 11112:
+            return "MEDICAL"
+        if port == 5900:
+            return "VNC"
+        if port == 3389:
             return "RDP"
-        if port == 5060: #or port == 5900:
+        if port == 5060 or port == 5061:
             return "SIP"
+        if port == 5555:
+            return "ADB"
         else:
             return "OTHER"
     except:
@@ -693,8 +701,8 @@ if __name__ == '__main__':
             try:
                 get_honeypot_data()
             except:
-                print("failed")
-                time.sleep(1)
+                print("Waiting for Elasticsearch ...")
+                time.sleep(5)
 
     except KeyboardInterrupt:
         print('\nSHUTTING DOWN')
