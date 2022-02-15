@@ -391,20 +391,20 @@ webSock.onmessage = function (e) {
     }
 };
 
-$(document).on("click","#informIP #exit", function (e) {
-    $("#informIP").hide();
-});
-
-$(document).on("click", '.container-fluid .showInfo', function(e) {
-    var iplink = $(this).text();
-    $("#informIP").show();
-    $("#informIP").html( "<a id='ip_only' href='"+iplink+"'></a><button id='exit'>X</button><h3>"+iplink+"</h3><br><ul><li><a target = '_blank' href='http://www.senderbase.org/lookup/?search_string="+iplink+"'><b><u color=white>Senderbase</a></li><li><a target='_blank' href='https://ers.trendmicro.com/reputations/index'>Trend Micro</a></li><li><a target='_blank' href='http://www.anti-abuse.org/multi-rbl-check-results/?host="+iplink+"'>Anti-abuse</a></li></ul><br><button id='blockIP' alt='"+iplink+"'>Block IP</button>   ");
-});
-
-
-$(document).on("click","#informIP #blockIP", function (e) {
-    var ip= $(this).attr('alt');
-    var ipBlocked = "ip_blocked:"+ip;
-    console.log("Sending message: "+ipBlocked);
-    webSock.send(ipBlocked);
-});
+//$(document).on("click","#informIP #exit", function (e) {
+//    $("#informIP").hide();
+//});
+//
+//$(document).on("click", '.container-fluid .showInfo', function(e) {
+//    var iplink = $(this).text();
+//    $("#informIP").show();
+//    $("#informIP").html( "<a id='ip_only' href='"+iplink+"'></a><button id='exit'>X</button><h3>"+iplink+"</h3><br><ul><li><a target = '_blank' href='http://www.senderbase.org/lookup/?search_string="+iplink+"'><b><u color=white>Senderbase</a></li><li><a target='_blank' href='https://ers.trendmicro.com/reputations/index'>Trend Micro</a></li><li><a target='_blank' href='http://www.anti-abuse.org/multi-rbl-check-results/?host="+iplink+"'>Anti-abuse</a></li></ul><br><button id='blockIP' alt='"+iplink+"'>Block IP</button>   ");
+//});
+//
+//
+//$(document).on("click","#informIP #blockIP", function (e) {
+//    var ip= $(this).attr('alt');
+//    var ipBlocked = "ip_blocked:"+ip;
+//    console.log("Sending message: "+ipBlocked);
+//    webSock.send(ipBlocked);
+//});
