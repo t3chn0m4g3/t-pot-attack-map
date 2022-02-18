@@ -12,13 +12,9 @@ import tornado.websocket
 
 app = Flask(__name__)
 es = Elasticsearch('http://elasticsearch:9200')
-#es2 = Elasticsearch('snorlax.true.nl:9200')
 redis_ip = 'map_redis'
 redis_instance = None
 
-#dst_ip = "87.233.192.218"
-#dst_lat = 52.305610
-#dst_long = 4.932533
 dst_ip = str(os.getenv('MY_EXTIP'))
 dst_lat = os.getenv('MY_EXTIP_LAT')
 dst_long = os.getenv('MY_EXTIP_LONG')
@@ -57,52 +53,41 @@ def connect_redis(redis_ip):
 
 
 def get_honeypot_data():
-    anti_dedup = []
     processed_data = []
-    banned_src = ["8.8.8.8","87.233.192.218"]
-    time_last_request = datetime.datetime.utcnow()
+    time_last_request = datetime.datetime.utcnow() - datetime.timedelta(seconds=5)
     while True:
         tmp = str(time_last_request).split(" ")
-        ES_query = {"query": {
+        mynow = str(datetime.datetime.utcnow() - datetime.timedelta(seconds=5)).split(" ")
+        ES_query = {
             "bool": {
                 "must": {
                     "range": {
                         "@timestamp": {
-                            "gte": tmp[0] + "T" + tmp[1]
+                            "gt": tmp[0] + "T" + tmp[1],
+                            "lte": mynow[0] + "T" + mynow[1]
                         }
                     }
                 }
             }
         }
-        }
-
-        res = es.search(index="logstash-*", size=100, body=ES_query)
-#        res2 = es2.search(index="logstash-*", size=100, body=ES_query)
-#        print res2
+        res = es.search(index="logstash-*", size=100, query=ES_query)
         hits = res['hits']
-#        hits.update(res2['hits'])
-
-
-        #print str(datetime.datetime.now() - time_last_request) + " Got ES1 "+ str(res['hits']['total']) #+ "and ES2 "+ str(res2['hits']['total']) + " Hits:"
         if len(hits['hits']) != 0:
-            time_last_request = datetime.datetime.utcnow()
+            time_last_request = datetime.datetime.utcnow() - datetime.timedelta(seconds=5)
+            print("ES query: ",ES_query)
+            print("ES returnded hits: ",len(hits['hits']))
             for hit in hits['hits']:
                 try:
-                    #print json.dumps(hit)
-                    if not (hit["_id"] in anti_dedup or hit["_source"]["src_ip"] in banned_src):
-                        process_datas = process_data(hit)
-                        if process_datas != None:
-                            processed_data.append(process_datas)
+                    process_datas = process_data(hit)
+                    if process_datas != None:
+                        processed_data.append(process_datas)
                 except:
                     pass
-
         if len(processed_data) != 0:
             push(processed_data)
             processed_data = []
-
-
         time.sleep(1)
-        #exit()
+
 
 
 
@@ -115,7 +100,6 @@ def process_data(hit):
     alert["country"] = hit["_source"]["geoip"].get("country_name", "")
     alert["country_code"] = hit["_source"]["geoip"].get("country_code2", "")
     alert["continent_code"] = hit["_source"]["geoip"].get("continent_code", "")
-
     alert["dst_lat"] = dst_lat
     alert["dst_long"] = dst_long
     alert["dst_ip"] = dst_ip
@@ -123,225 +107,26 @@ def process_data(hit):
     alert["iso_code"] = hit["_source"]["geoip"]["country_code2"]
     alert["latitude"] = hit["_source"]["geoip"]["latitude"]
     alert["longitude"] = hit["_source"]["geoip"]["longitude"]
-
-    #print hit["_source"]["type"]
-    # if hit["_source"]["type"] == "NGINX":
-    #     alert["src_ip"] == ""
-
-
-    # if hit["_source"]["type"] == "Cowrie":
-    #     alert["detect_source"]  = "Cowrie"
-    #     alert["dst_port"]       = "unknown"
-    #     alert["msg_type"]       = hit["_source"]["message"]
-    #     alert["protocol"]       = "OTHER"
-    #     alert["src_ip"]         = hit["_source"]["src_ip"]
-    #     alert["src_port"]       = "0"
-    #     if "SSH" in hit["_source"]["message"] or ":2222" in hit["_source"]["message"] or ":22" in hit["_source"]["message"] or "SSH" in hit["_source"]["system"]:
-    #         alert["dst_port"] = 22
-    #         alert["protocol"] = "SSH"
-    #     if "Telnet" in hit["_source"]["system"]:
-    #         alert["dst_port"] = 23
-    #         alert["protocol"] = "Telnet"
-    #     if alert["dst_port"] == "unknown":
-    #         print "unknown"
-    #         print hit
-    #         time.sleep(5)
-    #
-    # elif hit["_source"]["type"] == "Dionaea":
-    #     alert["detect_source"]  = "Dionaea"
-    #     alert["dst_port"]       = hit["_source"]["dest_port"]
-    #     alert["msg_type"]       = str(hit["_source"]["connection"]["protocol"]) + str(hit["_source"]["connection"]["type"])
-    #     alert["protocol"]       = port_to_type(hit["_source"]["dest_port"])
-    #     #alert["protocol"]       = str(hit["_source"]["connection"]["protocol"]) + ""
-    #     alert["src_ip"]         = hit["_source"]["src_ip"]
-    #     alert["src_port"]       = "0"
-    # elif hit["_source"]["type"] == "Honeytrap":
-    #     alert["detect_source"]  = "Honeytrap"
-    #     alert["dst_port"]       = hit["_source"]["dest_port"]
-    #     alert["msg_type"]       = hit["_source"].get("payload", 1)
-    #     alert["protocol"]       = port_to_type(hit["_source"]["dest_port"])
-    #     alert["src_ip"]         = hit["_source"]["src_ip"]
-    #     alert["src_port"]       = "0"
-    # elif hit["_source"]["type"] == "Heralding":
-    #     print json.dumps(hit)
-    #     alert["detect_source"] = "Heralding"
-    #     alert["dst_port"] = hit["_source"]["dest_port"]
-    #     alert["msg_type"] = hit["_source"].get("message", 1)
-    #     alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-    #     alert["src_ip"] = hit["_source"]["src_ip"]
-    #     alert["src_port"] = hit["_source"]["src_port"]
-    # elif hit["_source"]["type"] == "log":
-    #     pass
     print(hit["_source"]["type"])
-    if hit["_source"]["type"] == "Adbhoney":
-        alert["detect_source"] = "Adbhoney"
+    if not hit["_source"]["type"] == "":
+        print(hit["_source"]["type"]," Port: ",hit["_source"]["dest_port"])
+        print("analyze", json.dumps(hit))
+        alert["detect_source"] = hit["_source"]["type"]
         alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Ciscoasa":
-        alert["detect_source"] = "Ciscoasa"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "CitrixHoneypot":
-        alert["detect_source"] = "CitrixHoneypot"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "ConPot":
-        alert["detect_source"] = "ConPot"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Cowrie":
-        try:
-            if hit["_source"]["dest_port"] == 23 or hit["_source"]["dest_port"] == 2323:
-                alert["dst_port"] = 23
-                alert["protocol"] = "TELNET"
-            elif hit["_source"]["dest_port"] == 22 or hit["_source"]["dest_port"] == 2222:
-                alert["dst_port"] = 22
-                alert["protocol"] = "SSH"
-            alert["detect_source"] = "Cowrie"
-            alert["src_port"] = "0"
-            alert["msg_type"] = hit["_source"].get("message", 1)
-            alert["src_ip"] = hit["_source"]["src_ip"]
-        except:
-            pass
-            #print json.dumps(hit)
-    elif hit["_source"]["type"] == "Dicompot":
-        alert["detect_source"] = "Dicompot"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Ddospot":
-        alert["detect_source"] = "Ddospot"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Dionaea":
-        alert["detect_source"] = "Dionaea"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "ElasticPot":
-        alert["detect_source"] = "ElasticPot"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Endlessh":
-        alert["detect_source"] = "Endlessh"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Glutton":
-        alert["detect_source"]  = "Glutton"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("payload", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = "0"
-    elif hit["_source"]["type"] == "Hellpot":
-        alert["detect_source"] = "Hellpot"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Heralding":
-        alert["detect_source"] = "Heralding"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("ip_rep", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        print(alert["protocol"],hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Honeypots":
-        alert["detect_source"] = "Honeypots"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"]["dest_port"]
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = "0"
-    elif hit["_source"]["type"] == "Honeytrap":
-        alert["detect_source"]  = "Honeytrap"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("payload", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = "0"
-    elif hit["_source"]["type"] == "Ipphoney":
-        alert["detect_source"]  = "Ipphoney"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("payload", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Log4pot":
-        alert["detect_source"]  = "Log4pot"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("payload", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Mailoney":
-        alert["detect_source"] = "Mailoney"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Medpot":
-        alert["detect_source"] = "Medpot"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Redishoneypot":
-        alert["detect_source"] = "Redishoneypot"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"].get("message", 1)
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
-    elif hit["_source"]["type"] == "Tanner":
-        alert["detect_source"] = "Tanner"
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["msg_type"] = hit["_source"]["path"]
+        #alert["msg_type"] = "Traffic"
         alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
         alert["src_ip"] = hit["_source"]["src_ip"]
         alert["src_port"] = hit["_source"]["src_port"]
     else:
-        print("no type matched", json.dumps(hit))
-        #time.sleep(5)
-        #time.sleep(5)
-#        print hit
+        #print("no type matched", json.dumps(hit))
         return
-
     if not alert["src_ip"] == "":
         alert["color"] = service_rgb[alert["protocol"].upper()]
-
         return alert
     else:
         print("SRC IP EMPTY")
+
+
 
 
 def port_to_type(port):
@@ -383,18 +168,17 @@ def port_to_type(port):
         return "OTHER"
 
 
+
+
 def push(alerts):
     global ips_tracked,continent_tracked,countries_tracked, ip_to_code, ports, event_count
     redis_instance = connect_redis(redis_ip)
-
     for alert in alerts:
-
         ips_tracked[alert["src_ip"]] = ips_tracked.get(alert["src_ip"], 1) + 1
         continent_tracked[alert["continent_code"]] = ips_tracked.get(alert["continent_code"], 1) + 1
         countries_tracked[alert["country"]] = countries_tracked.get(alert["country"], 1) + 1
         ip_to_code[alert["src_ip"]] = alert["iso_code"]
         ports[alert["dst_port"]] = ports.get(alert["dst_port"], 0)+ 1
-
         json_data = {
             "protocol": alert["protocol"],
             "color": alert["color"],
@@ -678,17 +462,13 @@ def push(alerts):
             "dst_port": alert["dst_port"],
             "dst_ip": "172.23.0.2"
         }
-
         json_data["ips_tracked"] = ips_tracked
         event_count+=1
         json_data["ip_to_code"] = ip_to_code
         #json_data["continents_tracked"] = continent_tracked
         json_data["countries_tracked"] = countries_tracked
         tmp = json.dumps(json_data)
-        time.sleep(0.1)
-        #print tmp
         redis_instance.publish('attack-map-production', tmp)
-
 
 
 
@@ -696,8 +476,6 @@ def push(alerts):
 if __name__ == '__main__':
     try:
         while True:
-
-#            get_honeypot_data()
             try:
                 get_honeypot_data()
             except:
