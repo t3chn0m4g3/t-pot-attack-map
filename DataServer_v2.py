@@ -54,26 +54,36 @@ def connect_redis(redis_ip):
 
 def get_honeypot_data():
     processed_data = []
-    time_last_request = datetime.datetime.utcnow() - datetime.timedelta(seconds=5)
+    mydelta=10
+    time_last_request = datetime.datetime.utcnow() - datetime.timedelta(seconds=mydelta)
     while True:
-        tmp = str(time_last_request).split(" ")
-        mynow = str(datetime.datetime.utcnow() - datetime.timedelta(seconds=5)).split(" ")
+        mylast = str(time_last_request).split(" ")
+        mynow = str(datetime.datetime.utcnow() - datetime.timedelta(seconds=mydelta)).split(" ")
         ES_query = {
-            "bool": {
-                "must": {
-                    "range": {
-                        "@timestamp": {
-                            "gt": tmp[0] + "T" + tmp[1],
-                            "lte": mynow[0] + "T" + mynow[1]
+                "bool": {
+                    "must": [
+                        {
+                            "query_string": {
+                                "query": "type:\"Adbhoney\" OR type:\"Ciscoasa\" OR type:\"CitrixHoneypot\" OR type:\"ConPot\" OR type:\"Cowrie\" OR type:\"Ddospot\" OR type:\"Dicompot\" OR type:\"Dionaea\" OR type:\"ElasticPot\" OR type:\"Endlessh\" OR type:\"Glutton\" OR type:\"Hellpot\" OR type:\"Heralding\" OR type:\"Honeypots\" OR type:\"Honeytrap\" OR type: \"Ipphoney\" OR type:\"Log4pot\" OR type:\"Mailoney\" OR type:\"Medpot\" OR type:\"Redishoneypot\" OR type:\"Tanner\" OR type:\"Wordpot\""
+                            }
                         }
-                    }
+                    ],
+                    "filter": [
+                        {
+                            "range": {
+                                "@timestamp": {
+                                    "gte": mylast[0] + "T" + mylast[1],
+                                    "lte": mynow[0] + "T" + mynow[1]
+                                }
+                            }
+                        }
+                    ]
                 }
-            }
         }
         res = es.search(index="logstash-*", size=100, query=ES_query)
         hits = res['hits']
         if len(hits['hits']) != 0:
-            time_last_request = datetime.datetime.utcnow() - datetime.timedelta(seconds=5)
+            time_last_request = datetime.datetime.utcnow() - datetime.timedelta(seconds=mydelta)
             print("ES query: ",ES_query)
             print("ES returnded hits: ",len(hits['hits']))
             for hit in hits['hits']:
@@ -86,7 +96,7 @@ def get_honeypot_data():
         if len(processed_data) != 0:
             push(processed_data)
             processed_data = []
-        time.sleep(1)
+        time.sleep(0.5)
 
 
 
@@ -110,7 +120,7 @@ def process_data(hit):
     print(hit["_source"]["type"])
     if not hit["_source"]["type"] == "":
         print(hit["_source"]["type"]," Port: ",hit["_source"]["dest_port"])
-        print("analyze", json.dumps(hit))
+        #print("analyze", json.dumps(hit))
         alert["detect_source"] = hit["_source"]["type"]
         alert["dst_port"] = hit["_source"]["dest_port"]
         #alert["msg_type"] = "Traffic"
