@@ -5,9 +5,7 @@
 //   - Internal IP: 127.0.0.1
 //   - External IP: 192.168.11.106
 const WS_HOST = 'ws://'+window.location.host+'/websocket'
-//var webSock = new WebSocket("ws://87.233.6.250:13337/websocket"); // Internal
 var webSock = new WebSocket(WS_HOST); // Internal
-//var webSock = new WebSocket("ws:/192.168.1.100:8888/websocket"); // External
 
 // link map
 L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
@@ -23,7 +21,7 @@ L.control.fullscreen().addTo(map);
 var hqLatLng = new L.LatLng(52.3058, 4.932);
 
 // hq marker
-L.circle(hqLatLng, 55000, {
+L.circle(hqLatLng, 77000, {
 color: '#E20074',
 fillColor: '#E20074',
 fillOpacity: 0.2,
@@ -390,21 +388,3 @@ webSock.onmessage = function (e) {
         console.log(err)
     }
 };
-
-//$(document).on("click","#informIP #exit", function (e) {
-//    $("#informIP").hide();
-//});
-//
-//$(document).on("click", '.container-fluid .showInfo', function(e) {
-//    var iplink = $(this).text();
-//    $("#informIP").show();
-//    $("#informIP").html( "<a id='ip_only' href='"+iplink+"'></a><button id='exit'>X</button><h3>"+iplink+"</h3><br><ul><li><a target = '_blank' href='http://www.senderbase.org/lookup/?search_string="+iplink+"'><b><u color=white>Senderbase</a></li><li><a target='_blank' href='https://ers.trendmicro.com/reputations/index'>Trend Micro</a></li><li><a target='_blank' href='http://www.anti-abuse.org/multi-rbl-check-results/?host="+iplink+"'>Anti-abuse</a></li></ul><br><button id='blockIP' alt='"+iplink+"'>Block IP</button>   ");
-//});
-//
-//
-//$(document).on("click","#informIP #blockIP", function (e) {
-//    var ip= $(this).attr('alt');
-//    var ipBlocked = "ip_blocked:"+ip;
-//    console.log("Sending message: "+ipBlocked);
-//    webSock.send(ipBlocked);
-//});

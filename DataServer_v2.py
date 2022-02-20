@@ -1,16 +1,11 @@
 from elasticsearch import Elasticsearch
-from flask import Flask, render_template
 import json
 import redis
 import datetime
 import time
 import os
 import pickle
-import tornado.ioloop
-import tornado.web
-import tornado.websocket
 
-app = Flask(__name__)
 es = Elasticsearch('http://elasticsearch:9200')
 redis_ip = 'map_redis'
 redis_instance = None
@@ -85,8 +80,6 @@ def get_honeypot_data():
         hits = res['hits']
         if len(hits['hits']) != 0:
             time_last_request = datetime.datetime.utcnow() - datetime.timedelta(seconds=mydelta)
-            print("ES query: ",ES_query)
-            print("ES returnded hits: ",len(hits['hits']))
             for hit in hits['hits']:
                 try:
                     process_datas = process_data(hit)
@@ -118,18 +111,14 @@ def process_data(hit):
     alert["iso_code"] = hit["_source"]["geoip"]["country_code2"]
     alert["latitude"] = hit["_source"]["geoip"]["latitude"]
     alert["longitude"] = hit["_source"]["geoip"]["longitude"]
-    print(hit["_source"]["type"])
     if not hit["_source"]["type"] == "":
-        print(hit["_source"]["type"]," Port: ",hit["_source"]["dest_port"])
-        #print("analyze", json.dumps(hit))
+        #print(hit["_source"]["type"],"Port:",hit["_source"]["dest_port"])
         alert["detect_source"] = hit["_source"]["type"]
         alert["dst_port"] = hit["_source"]["dest_port"]
-        #alert["msg_type"] = "Traffic"
         alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
         alert["src_ip"] = hit["_source"]["src_ip"]
         alert["src_port"] = hit["_source"]["src_port"]
     else:
-        #print("no type matched", json.dumps(hit))
         return
     if not alert["src_ip"] == "":
         alert["color"] = service_rgb[alert["protocol"].upper()]
@@ -200,40 +189,29 @@ def push(alerts):
             "type3": "source:"+alert["detect_source"]+" port: "+str(alert["dst_port"]),
             "type2": alert["dst_port"],
             "city": alert["as_org"],
-            "ips_tracked": {
-                "170.246.70.172": 1
-            },
+            "ips_tracked": ips_tracked,
             "src_port": alert["src_port"],
             "event_time": alert["event_time"],
             "src_lat": alert["latitude"],
             "src_ip": alert["src_ip"],
-            "continents_tracked": {
-                "Europe": 30
-            },
+            "continents_tracked": continent_tracked,
             "type": "Traffic",
             "country_to_code": countries_to_code,
             "dst_long": alert["dst_long"],
-            "continent_code": "SA",
+            "continent_code": alert["continent_code"],
             "dst_lat": alert["dst_lat"],
-            "ip_to_code": {
-                "170.246.70.172": "BR"
-            },
-            "countries_tracked": {
-                "Brazil": 25
-            },
+            "ip_to_code": ip_to_code,
+            "countries_tracked": countries_tracked,
             "event_count": event_count,
             "country": alert["country"],
             "src_long": alert["longitude"],
             "unknowns": {
             },
             "dst_port": alert["dst_port"],
-            "dst_ip": "172.23.0.2"
+            "dst_ip": alert["dst_ip"]
         }
         json_data["ips_tracked"] = ips_tracked
         event_count+=1
-        json_data["ip_to_code"] = ip_to_code
-        #json_data["continents_tracked"] = continent_tracked
-        json_data["countries_tracked"] = countries_tracked
         tmp = json.dumps(json_data)
         redis_instance.publish('attack-map-production', tmp)
 
