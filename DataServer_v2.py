@@ -190,7 +190,6 @@ def push(alerts):
         countries_tracked[alert["country"]] = countries_tracked.get(alert["country"], 1) + 1
         ip_to_code[alert["src_ip"]] = alert["iso_code"]
         countries_to_code[alert["country"]] = alert["country_code"]
-        print(countries_to_code)
         ports[alert["dst_port"]] = ports.get(alert["dst_port"], 0)+ 1
         json_data = {
             "protocol": alert["protocol"],
@@ -212,9 +211,7 @@ def push(alerts):
                 "Europe": 30
             },
             "type": "Traffic",
-            "country_to_code": {
-                alert["country"]:alert["country_code"]
-            },
+            "country_to_code": countries_to_code,
             "dst_long": alert["dst_long"],
             "continent_code": "SA",
             "dst_lat": alert["dst_lat"],
@@ -238,7 +235,6 @@ def push(alerts):
         #json_data["continents_tracked"] = continent_tracked
         json_data["countries_tracked"] = countries_tracked
         tmp = json.dumps(json_data)
-        print("json to redis: ", json.dumps(tmp))
         redis_instance.publish('attack-map-production', tmp)
 
 
