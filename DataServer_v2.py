@@ -60,7 +60,7 @@ def get_honeypot_data():
                     "must": [
                         {
                             "query_string": {
-                                "query": "type:\"Adbhoney\" OR type:\"Ciscoasa\" OR type:\"CitrixHoneypot\" OR type:\"ConPot\" OR type:\"Cowrie\" OR type:\"Ddospot\" OR type:\"Dicompot\" OR type:\"Dionaea\" OR type:\"ElasticPot\" OR type:\"Endlessh\" OR type:\"Glutton\" OR type:\"Hellpot\" OR type:\"Heralding\" OR type:\"Honeypots\" OR type:\"Honeytrap\" OR type: \"Ipphoney\" OR type:\"Log4pot\" OR type:\"Mailoney\" OR type:\"Medpot\" OR type:\"Redishoneypot\" OR type:\"Tanner\" OR type:\"Wordpot\""
+                                "query": "type:\"Adbhoney\" OR type:\"Ciscoasa\" OR type:\"CitrixHoneypot\" OR type:\"ConPot\" OR type:\"Cowrie\" OR type:\"Ddospot\" OR type:\"Dicompot\" OR type:\"Dionaea\" OR type:\"ElasticPot\" OR type:\"Endlessh\" OR type:\"Glutton\" OR type:\"Hellpot\" OR type:\"Heralding\" OR type:\"Honeypots\" OR type:\"Honeytrap\" OR type: \"Ipphoney\" OR type:\"Log4pot\" OR type:\"Mailoney\" OR type:\"Medpot\" OR type:\"Redishoneypot\" OR type:\"Sentrypeer\" OR type:\"Tanner\" OR type:\"Wordpot\""
                             }
                         }
                     ],
