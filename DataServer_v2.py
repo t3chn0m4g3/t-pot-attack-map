@@ -42,7 +42,7 @@ service_rgb = {
 }
 
 def connect_redis(redis_ip):
-    r = redis.StrictRedis(host=redis_ip, port=64300, db=0)
+    r = redis.StrictRedis(host=redis_ip, port=6379, db=0)
     return r
 
 
