@@ -117,7 +117,10 @@ def process_data(hit):
         alert["dst_port"] = hit["_source"]["dest_port"]
         alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
         alert["src_ip"] = hit["_source"]["src_ip"]
-        alert["src_port"] = hit["_source"]["src_port"]
+        try:
+            alert["src_port"] = hit["_source"]["src_port"]
+        except:
+            alert["src_port"] = 0
     else:
         return
     if not alert["src_ip"] == "":
