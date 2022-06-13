@@ -6,13 +6,13 @@ import time
 import os
 import pickle
 
-es = Elasticsearch('http://elasticsearch:9200')
+es = Elasticsearch('http://10.9.10.35:9200')
 redis_ip = 'map_redis'
 redis_instance = None
 
-dst_ip = str(os.getenv('MY_EXTIP'))
-dst_lat = os.getenv('MY_EXTIP_LAT')
-dst_long = os.getenv('MY_EXTIP_LONG')
+# dst_ip = str(os.getenv('MY_EXTIP'))
+# dst_lat = os.getenv('MY_EXTIP_LAT')
+# dst_long = os.getenv('MY_EXTIP_LONG')
 
 event_count = 1
 ips_tracked = {}
@@ -96,23 +96,23 @@ def get_honeypot_data():
 
 
 def process_data(hit):
-    global dst_ip,dst_lat,dst_long
+    # global dst_ip, dst_lat, dst_long
     alert = {}
-    #alert["as_org"] = hit["_source"]["geoip"].get("as_org", "")
+
     # We want the Honeypot name instead of the AS
     alert["as_org"] = hit["_source"]["type"]
     alert["country"] = hit["_source"]["geoip"].get("country_name", "")
     alert["country_code"] = hit["_source"]["geoip"].get("country_code2", "")
     alert["continent_code"] = hit["_source"]["geoip"].get("continent_code", "")
-    alert["dst_lat"] = dst_lat
-    alert["dst_long"] = dst_long
-    alert["dst_ip"] = dst_ip
+    alert["dst_lat"] = hit["_source"]["geoip"].get("latitude", "") #dst_lat
+    alert["dst_long"] = hit["_source"]["geoip"].get("longitude", "") #dst_long
+    alert["dst_ip"] = hit["_source"]["geoip"].get("ip", "") #st_ip
     alert["event_time"] = str(hit["_source"]["@timestamp"][0:10]) + " " + str(hit["_source"]["@timestamp"][11:19])
     alert["iso_code"] = hit["_source"]["geoip"]["country_code2"]
     alert["latitude"] = hit["_source"]["geoip"]["latitude"]
     alert["longitude"] = hit["_source"]["geoip"]["longitude"]
+
     if not hit["_source"]["type"] == "":
-        #print(hit["_source"]["type"],"Port:",hit["_source"]["dest_port"])
         alert["detect_source"] = hit["_source"]["type"]
         alert["dst_port"] = hit["_source"]["dest_port"]
         alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
@@ -123,6 +123,7 @@ def process_data(hit):
             alert["src_port"] = 0
     else:
         return
+
     if not alert["src_ip"] == "":
         alert["color"] = service_rgb[alert["protocol"].upper()]
         return alert
