@@ -374,7 +374,7 @@ webSock.onmessage = function (e) {
         case "Traffic":
             console.log("Traffic!");
             var srcLatLng = new L.LatLng(msg.src_lat, msg.src_long);
-            var hqPoint = map.latLngToLayerPoint(hqLatLng);
+            var hqPoint = map.latLngToLayerPoint(new L.LatLng(msg.dst_lat, msg.dst_long));
             var srcPoint = map.latLngToLayerPoint(srcLatLng);
             console.log('');
             addCircle(msg, srcLatLng);
@@ -388,4 +388,4 @@ webSock.onmessage = function (e) {
     } catch(err) {
         console.log(err)
     }
-};
+}
