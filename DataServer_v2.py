@@ -89,7 +89,6 @@ def get_honeypot_data():
         time.sleep(0.5)
 
 def process_data(hit):
-    # global dst_ip, dst_lat, dst_long
     alert = {}
 
     # Assign all the different alerts 
@@ -99,13 +98,13 @@ def process_data(hit):
     alert["country_code"] = hit["_source"]["geoip"].get("country_code2", "")
     alert["continent_code"] = hit["_source"]["geoip"].get("continent_code", "")
 
-    alert["dst_lat"] = hit["_source"]["geoip"].get("latitude", "") #dst_lat
-    alert["dst_long"] = hit["_source"]["geoip"].get("longitude", "") #dst_long
-    alert["dst_ip"] = hit["_source"]["geoip"].get("ip", "") #st_ip
+    alert["dst_lat"] = hit["_source"]["geoip"]["latitude"]
+    alert["dst_long"] = hit["_source"]["geoip"]["longitude"]
+    alert["dst_ip"] = hit["_source"]["geoip"]["ip"]
 
     alert["event_time"] = str(hit["_source"]["@timestamp"][0:10]) + " " + str(hit["_source"]["@timestamp"][11:19])
+
     alert["iso_code"] = hit["_source"]["geoip"]["country_code2"]
-    # Assign all the different alerts 
     alert["latitude"] = hit["_source"]["geoip"]["latitude"]
     alert["longitude"] = hit["_source"]["geoip"]["longitude"]
 
