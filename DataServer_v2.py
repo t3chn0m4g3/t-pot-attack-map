@@ -98,9 +98,9 @@ def process_data(hit):
     alert["country_code"] = hit["_source"]["geoip"].get("country_code2", "")
     alert["continent_code"] = hit["_source"]["geoip"].get("continent_code", "")
 
-    alert["dst_lat"] = hit["_source"]["geoip"]["latitude"]
-    alert["dst_long"] = hit["_source"]["geoip"]["longitude"]
-    alert["dst_ip"] = hit["_source"]["geoip"]["ip"]
+    alert["dst_lat"] = hit["_source"]["geoip_ext"]["latitude"]
+    alert["dst_long"] = hit["_source"]["geoip_ext"]["longitude"]
+    alert["dst_ip"] = hit["_source"]["geoip_ext"]["ip"]
 
     alert["event_time"] = str(hit["_source"]["@timestamp"][0:10]) + " " + str(hit["_source"]["@timestamp"][11:19])
 
