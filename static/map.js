@@ -5,7 +5,7 @@
 //   - Internal IP: 127.0.0.1
 //   - External IP: 192.168.11.106
 // For Proxy_Pass to work we need to use wss:// instead of ws://
-const WS_HOST = 'wss://'+window.location.host+'/websocket'
+const WS_HOST = 'ws://'+window.location.host+'/websocket'
 var webSock = new WebSocket(WS_HOST); // Internal
 
 // link map

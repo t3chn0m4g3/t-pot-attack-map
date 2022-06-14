@@ -6,18 +6,17 @@ import time
 import os
 import pickle
 
+# Declaration of variables
 es = Elasticsearch('http://10.9.10.35:9200')
+
 redis_ip = 'map_redis'
 redis_instance = None
 
-# dst_ip = str(os.getenv('MY_EXTIP'))
-# dst_lat = os.getenv('MY_EXTIP_LAT')
-# dst_long = os.getenv('MY_EXTIP_LONG')
-
 event_count = 1
-ips_tracked = {}
 ports = {}
+ips_tracked = {}
 ip_to_code = {}
+
 countries_to_code = {}
 countries_tracked = {}
 continent_tracked = {}
@@ -42,16 +41,13 @@ service_rgb = {
 }
 
 def connect_redis(redis_ip):
-    r = redis.StrictRedis(host=redis_ip, port=6379, db=0)
+    r = redis.StrictRedis(host = redis_ip, port = 6379, db = 0)
     return r
-
-
-
 
 def get_honeypot_data():
     processed_data = []
-    mydelta=10
-    time_last_request = datetime.datetime.utcnow() - datetime.timedelta(seconds=mydelta)
+    mydelta = 10
+    time_last_request = datetime.datetime.utcnow() - datetime.timedelta(seconds = mydelta)
     while True:
         mylast = str(time_last_request).split(" ")
         mynow = str(datetime.datetime.utcnow() - datetime.timedelta(seconds=mydelta)).split(" ")
@@ -92,23 +88,24 @@ def get_honeypot_data():
             processed_data = []
         time.sleep(0.5)
 
-
-
-
 def process_data(hit):
     # global dst_ip, dst_lat, dst_long
     alert = {}
 
-    # We want the Honeypot name instead of the AS
+    # Assign all the different alerts 
     alert["as_org"] = hit["_source"]["type"]
+
     alert["country"] = hit["_source"]["geoip"].get("country_name", "")
     alert["country_code"] = hit["_source"]["geoip"].get("country_code2", "")
     alert["continent_code"] = hit["_source"]["geoip"].get("continent_code", "")
+
     alert["dst_lat"] = hit["_source"]["geoip"].get("latitude", "") #dst_lat
     alert["dst_long"] = hit["_source"]["geoip"].get("longitude", "") #dst_long
     alert["dst_ip"] = hit["_source"]["geoip"].get("ip", "") #st_ip
+
     alert["event_time"] = str(hit["_source"]["@timestamp"][0:10]) + " " + str(hit["_source"]["@timestamp"][11:19])
     alert["iso_code"] = hit["_source"]["geoip"]["country_code2"]
+    # Assign all the different alerts 
     alert["latitude"] = hit["_source"]["geoip"]["latitude"]
     alert["longitude"] = hit["_source"]["geoip"]["longitude"]
 
