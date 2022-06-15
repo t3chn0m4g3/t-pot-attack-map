@@ -333,15 +333,15 @@ function redrawCountIP2(hashID, id, countList, codeDict) {
 
 function handleLegend(msg) {
     var ipCountList = [msg.ips_tracked,
-                       msg.iso_code];
+               msg.iso_code];
     var countryCountList = [msg.countries_tracked,
-                            msg.iso_code];
+                msg.iso_code];
     var attackList = [msg.event_time,
-                      msg.src_ip,
-                      msg.iso_code,
-                      msg.country,
-                      msg.city,
-                      msg.protocol];
+              msg.src_ip,
+              msg.iso_code,
+              msg.country,
+              msg.city,
+              msg.protocol];
     redrawCountIP('#ip-tracking','ip-tracking', ipCountList, msg.ip_to_code);
     redrawCountIP2('#country-tracking', 'country-tracking', countryCountList, msg.country_to_code);
     prependAttackRow('attack-tracking', attackList);
@@ -369,17 +369,9 @@ webSock.onmessage = function (e) {
         case "Traffic":
             console.log("Traffic!");
             var srcLatLng = new L.LatLng(msg.src_lat, msg.src_long);
+            var hqPoint = map.latLngToLayerPoint(new L.LatLng(msg.dst_lat, msg.dst_long));
             var srcPoint = map.latLngToLayerPoint(srcLatLng);
-            var hqLatLng = new L.LatLng(msg.dst_lat, msg.dst_long);
-            var hqPoint = map.latLngToLayerPoint(hqLatLng);
             console.log('');
-
-            L.circle(hqLatLng, 77000, {
-                color: '#E20074',
-                fillColor: '#E20074',
-                fillOpacity: 0.2,
-            }).addTo(map);
-
             addCircle(msg, srcLatLng);
             handleParticle(msg, srcPoint);
             handleTraffic(msg, srcPoint, hqPoint, srcLatLng);
