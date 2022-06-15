@@ -86,7 +86,6 @@ function calcMidpoint(x1, y1, x2, y2, bend) {
     var m2 = (y1+y2)/2;
 
     var min = 2.5, max = 7.5;
-    //var min = 1, max = 7;
     var arcIntensity = parseFloat((Math.random() * (max - min) + min).toFixed(2));
 
     if (bend === true) {
@@ -130,7 +129,7 @@ function handleParticle(msg, srcPoint) {
         .style('stroke', msg.color)
         .style('stroke-opacity', 1)
         .transition()
-        .duration(2000)
+        .duration(500)
         .ease(Math.sqrt)
         .attr('r', 35)
         .style('stroke-opacity', 1e-6)
@@ -217,7 +216,7 @@ function addCircle(msg, srcLatLng) {
         fillColor: msg.color,
         fillOpacity: 0.2,
         }).addTo(circles);
-    }
+}
 
 function prependAttackRow(id, args) {
     var tr = document.createElement('tr');
@@ -363,8 +362,7 @@ function handleLegendType(msg) {
 
 }
 
-// WEBSOCKET STUFF
-
+// Websocket stuff
 webSock.onmessage = function (e) {
     console.log("Got a websocket message...");
     try {
