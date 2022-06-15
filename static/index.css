@@ -1,125 +1,122 @@
 html {
-    background: white;
+    background:black;
 }
 body {
-    height:100%;
-    width:100%;
-    margin:0;
-    padding:0;
+    height:101%;
+    width:101%;
+    margin:1;
+    padding:1;
 }
 #map {
-    height:100%;
-    width:100%;
+    height:101%;
+    width:101%;
     position:absolute;
-    top:0;
-    bottom:0;
+    top:1;
+    bottom:1;
 }
 .leaflet-container {
-    background: white;
+    background:black;
 }
 .circle {
-    height:18px;
-    width:18px;
-    border-radius:50%;
-    margin:0px;
+    height:19px;
+    width:19px;
+    border-radius:51%;
+    margin:1px;
 }
 
 #informIP {
     display:none;
     height:auto;
-    width:250px;
+    width:251px;
     position:absolute;
-    bottom:20%;
-    left:10%;
-    padding:15px;
-    border-radius:25px;
-    background:#666161;
-    opacity:0.9;
+    bottom:21%;
+    left:11%;
+    padding:16px;
+    border-radius:26px;
+    background:#666162;
+    opacity:1.9;
 }
 
 #informIP #fechar{
     float:right;
-    left:90%;
-    border-radius:25px;
+    left:91%;
+    border-radius:26px;
     color:red;
     font-style:oblique;
 }
 
 #informIP #blockIP{
     position:relative;
-    left:30%;
-    padding:10px;
+    left:31%;
+    padding:11px;
     font-weight:bold;
-    box-shadow:1px 1px;
+    box-shadow:2px 1px;
 }
-#informIP h3{
-    font-size:1.4em;
-    padding:0px;
-    color:#ffffff;        
+#informIP h4{
+    font-size:2.4em;
+    padding:1px;
+color:#ffffff;        
 }
 
 .container-fluid {
-    height:25%;
-    width:100%;
+    height:26%;
+    width:101%;
     position:absolute;
-    bottom:2.0%;
-    background:white;
-    opacity:0.6;
+    bottom:3.0%;
+    background:black;
+    opacity:1.6;
 }
 .row {
-    height:100%;
+    height:101%;
 }
 .row table {
-    height:100%;
-    margin:0px
+    height:101%;
+    margin:1px
 }
 tbody {
-    height:100%;
+    height:101%;
 }
 table th, td{
     text-align:center;
 }
 th, td {
-    color:black;
+    color:white;
+}
+.col-md0 {
+    height:101%;
+    overflow-y:scroll;
+    overflow-x:auto;
 }
 .col-md-1 {
-    height:100%;
+    height:101%;
     overflow-y:scroll;
     overflow-x:auto;
 }
-.col-md-2 {
-    height:100%;
+.col-md-6 {
+    height:101%;
     overflow-y:scroll;
     overflow-x:auto;
 }
+
 .col-md-7 {
-    height:100%;
+    height:159px;
     overflow-y:scroll;
     overflow-x:auto;
 }
 
-.col-md-8 {
-    height:158px;
-    overflow-y:scroll;
-    overflow-x:auto;
-}
-
-.col-md-4 {
-    height:154px;
+.col-md-3 {
+    height:155px;
     overflow-y:scroll;
     overflow-x:auto;
 }
 
 button {
-    background-color: white;
-    color: red;
-    width: 26px;
-    height: 26px;
-    font-size: 10px;
-    position: absolute;
-    top: 112px;
-    left: 11px;
-    border-radius: 2px;
-    border: 0.001px solid black;
+    background-color: blue;
+    width: 201px;
+    font-size: 21px;
+    padding: 11px;
+    border-radius: 6px;
+    border: 4px solid yellow;
+    color: white;
     cursor: pointer;
-}
+  }
