@@ -201,7 +201,7 @@ function addCircle(msg, srcLatLng) {
     });
     var circleToBeDestoyed = newCircle.id;
 
-    newCircle.addTo(circles);
+    circles.addLayer(newCircle);
     setInterval(removeCircle(circleToBeDestoyed), 500);
 }
 
