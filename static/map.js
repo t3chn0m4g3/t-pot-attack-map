@@ -125,10 +125,10 @@ function handleParticle(msg, srcPoint) {
         .attr('cy', y)
         .attr('r', 1e-6)
         .style('fill', 'none')
-        //.style('stroke', d3.hsl((i = (i + 1) % 360), 1, .5))
         .style('stroke', msg.color)
         .style('stroke-opacity', 1)
         .transition()
+        // Duration controls the speed of the transition
         .duration(500)
         .ease(Math.sqrt)
         .attr('r', 35)
@@ -206,16 +206,14 @@ function addCircle(msg, srcLatLng) {
     circleCount = circles.getLayers().length;
     circleArray = circles.getLayers();
 
-    // Only allow 50 circles to be on the map at a time
-    if (circleCount >= 5000) {
-        circles.removeLayer(circleArray[0]);
-    }
-
     L.circle(srcLatLng, 50000, {
         color: msg.color,
         fillColor: msg.color,
         fillOpacity: 0.2,
         }).addTo(circles);
+
+    // Remove cirlce immediately once pinged
+    circles.removeLayer(circleArray[0]);
 }
 
 function prependAttackRow(id, args) {
