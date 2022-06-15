@@ -194,27 +194,18 @@ map.addLayer(circles);
 
 // Adds a circle that corresponds to srcLatLng
 function addCircle(msg, srcLatLng) {
-    var newCircle = L.circle(srcLatLng, 50000, {
+    L.circle(srcLatLng, 50000, {
         color: msg.color,
         fillColor: msg.color,
         fillOpacity: 0.2,
-    });
-    var circleToBeDestoyed = newCircle.id;
+    }).addTo(circles);
 
-    circles.addLayer(newCircle);
-    setInterval(removeCircle(circleToBeDestoyed), 100);
+    setTimeout(removeCircle(), 500);
 }
 
 // Removes existing circle
-function removeCircle(id) {
-    var currRadius = circles.getLayer(id).getRadius();
-
-    if (currRadius < 1) {       
-        circles.removeLayer(id);
-    } else {
-        circles.getLayer(id).setRadius(currRadius - 1);
-    }
- 
+function removeCircle() {
+    circles.removeLayer(circleArray[0]);
 }
 
 function prependAttackRow(id, args) {
