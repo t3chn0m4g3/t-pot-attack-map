@@ -13,7 +13,7 @@ L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0d
 
 var map = L.mapbox.map('map')
 .setView([0, -4.932], 3)
-.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'));
+.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/light-v10'));
 
 // add full screen option
 L.control.fullscreen().addTo(map);
@@ -380,8 +380,8 @@ webSock.onmessage = function (e) {
             console.log('');
 
             L.circle(hqLatLng, 77000, {
-                color: '#E20074',
-                fillColor: '#E20074',
+                color: '#0B5FAA',
+                fillColor: '#FCB100',
                 fillOpacity: 0.2,
             }).addTo(map);
 
