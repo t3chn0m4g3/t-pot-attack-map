@@ -205,6 +205,7 @@ function addCircle(msg, srcLatLng) {
 
 // Removes existing circle
 function removeCircle() {
+    circleArray = circles.getLayers();
     circles.removeLayer(circleArray[0]);
 }
 
