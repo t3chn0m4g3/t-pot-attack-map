@@ -8,15 +8,25 @@
 const WS_HOST = 'ws://'+window.location.host+'/websocket'
 var webSock = new WebSocket(WS_HOST); // Internal
 
-// Link map
+// link map
 L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
 
 var map = L.mapbox.map('map')
 .setView([0, -4.932], 3)
 .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'));
 
-// Add full screen option
+// add full screen option
 L.control.fullscreen().addTo(map);
+
+// hq coords
+var hqLatLng = new L.LatLng(52.3058, 4.932);
+
+// hq marker
+L.circle(hqLatLng, 77000, {
+color: '#E20074',
+fillColor: '#E20074',
+fillOpacity: 0.2,
+}).addTo(map);
 
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
@@ -76,6 +86,7 @@ function calcMidpoint(x1, y1, x2, y2, bend) {
     var m2 = (y1+y2)/2;
 
     var min = 2.5, max = 7.5;
+    //var min = 1, max = 7;
     var arcIntensity = parseFloat((Math.random() * (max - min) + min).toFixed(2));
 
     if (bend === true) {
@@ -115,10 +126,10 @@ function handleParticle(msg, srcPoint) {
         .attr('cy', y)
         .attr('r', 1e-6)
         .style('fill', 'none')
+        //.style('stroke', d3.hsl((i = (i + 1) % 360), 1, .5))
         .style('stroke', msg.color)
         .style('stroke-opacity', 1)
         .transition()
-        // Duration controls the speed of the transition
         .duration(2000)
         .ease(Math.sqrt)
         .attr('r', 35)
@@ -192,13 +203,12 @@ function handleTraffic(msg, srcPoint, hqPoint) {
 var circles = new L.LayerGroup();
 map.addLayer(circles);
 
-// Adds a circle that corresponds to srcLatLng
 function addCircle(msg, srcLatLng) {
     circleCount = circles.getLayers().length;
     circleArray = circles.getLayers();
 
     // Only allow 50 circles to be on the map at a time
-    if (circleCount >= 50) {
+    if (circleCount >= 5000) {
         circles.removeLayer(circleArray[0]);
     }
 
@@ -206,14 +216,8 @@ function addCircle(msg, srcLatLng) {
         color: msg.color,
         fillColor: msg.color,
         fillOpacity: 0.2,
-    }).addTo(circles);
-}
-
-// Removes existing circle
-function removeCircle() {
-    circleArray = circles.getLayers();
-    circles.removeLayer(circleArray[0]);
-}
+        }).addTo(circles);
+    }
 
 function prependAttackRow(id, args) {
     var tr = document.createElement('tr');
@@ -359,7 +363,8 @@ function handleLegendType(msg) {
 
 }
 
-// Websocket stuff
+// WEBSOCKET STUFF
+
 webSock.onmessage = function (e) {
     console.log("Got a websocket message...");
     try {
