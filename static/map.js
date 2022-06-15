@@ -375,8 +375,8 @@ webSock.onmessage = function (e) {
             console.log('');
 
             L.circle(hqLatLng, 77000, {
-                color: '#0B5FAA',
-                fillColor: '#FCB100',
+                color: '#E20074',
+                fillColor: '#E20074',
                 fillOpacity: 0.2,
             }).addTo(map);
 
