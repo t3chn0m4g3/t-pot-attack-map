@@ -119,7 +119,7 @@ function handleParticle(msg, srcPoint) {
         .style('stroke-opacity', 1)
         .transition()
         // Duration controls the speed of the transition
-        .duration(500)
+        .duration(2000)
         .ease(Math.sqrt)
         .attr('r', 35)
         .style('stroke-opacity', 1e-6)
@@ -200,7 +200,7 @@ function addCircle(msg, srcLatLng) {
         fillOpacity: 0.2,
     }).addTo(circles);
 
-    setTimeout(removeCircle(), 500);
+    setTimeout(removeCircle(), 2000);
 }
 
 // Removes existing circle
