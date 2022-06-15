@@ -194,13 +194,19 @@ map.addLayer(circles);
 
 // Adds a circle that corresponds to srcLatLng
 function addCircle(msg, srcLatLng) {
+    circleCount = circles.getLayers().length;
+    circleArray = circles.getLayers();
+
+    // Only allow 50 circles to be on the map at a time
+    if (circleCount >= 50) {
+        circles.removeLayer(circleArray[0]);
+    }
+
     L.circle(srcLatLng, 50000, {
         color: msg.color,
         fillColor: msg.color,
         fillOpacity: 0.2,
     }).addTo(circles);
-
-    setTimeout(removeCircle(), 2000);
 }
 
 // Removes existing circle
