@@ -202,12 +202,19 @@ function addCircle(msg, srcLatLng) {
     var circleToBeDestoyed = newCircle.id;
 
     circles.addLayer(newCircle);
-    setInterval(removeCircle(circleToBeDestoyed), 500);
+    setInterval(removeCircle(circleToBeDestoyed), 100);
 }
 
 // Removes existing circle
 function removeCircle(id) {
-    circles.removeLayer(id);
+    var currRadius = circles.getLayer(id).getRadius();
+
+    if (currRadius < 1) {       
+        circles.removeLayer(id);
+    } else {
+        circles.getLayer(id).setRadius(currRadius - 1);
+    }
+ 
 }
 
 function prependAttackRow(id, args) {
