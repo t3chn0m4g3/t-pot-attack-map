@@ -19,14 +19,14 @@ var map = L.mapbox.map('map')
 L.control.fullscreen().addTo(map);
 
 // hq coords
-var hqLatLng = new L.LatLng(52.3058, 4.932);
+// var hqLatLng = new L.LatLng(52.3058, 4.932);
 
 // hq marker
-L.circle(hqLatLng, 77000, {
-color: '#E20074',
-fillColor: '#E20074',
-fillOpacity: 0.2,
-}).addTo(map);
+// L.circle(hqLatLng, 77000, {
+// color: '#E20074',
+// fillColor: '#E20074',
+// fillOpacity: 0.2,
+// }).addTo(map);
 
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
@@ -217,7 +217,7 @@ function addCircle(msg, srcLatLng) {
         fillColor: msg.color,
         fillOpacity: 0.2,
         }).addTo(circles);
-    }
+}
 
 function prependAttackRow(id, args) {
     var tr = document.createElement('tr');
@@ -374,8 +374,16 @@ webSock.onmessage = function (e) {
         case "Traffic":
             console.log("Traffic!");
             var srcLatLng = new L.LatLng(msg.src_lat, msg.src_long);
-            var hqPoint = map.latLngToLayerPoint(new L.LatLng(msg.dst_lat, msg.dst_long));
+            var hqLatLng = new L.LatLng(msg.dst_lat, msg.dst_long);
             var srcPoint = map.latLngToLayerPoint(srcLatLng);
+            var hqPoint = map.latLngToLayerPoint(hqLatLng)
+
+            L.circle(hqLatLng, 90000, {
+            color: '#185EAB',
+            fillColor: '#FDB712',
+            fillOpacity: 0.2,
+            }).addTo(map);
+
             console.log('');
             addCircle(msg, srcLatLng);
             handleParticle(msg, srcPoint);
