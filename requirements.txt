@@ -1,4 +1,4 @@
-redis==2.10.6
+redis==4.3.3
 tornado==4.4.2
 tornado-redis==2.4.18
 elasticsearch
