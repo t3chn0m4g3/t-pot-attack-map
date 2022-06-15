@@ -8,25 +8,15 @@
 const WS_HOST = 'ws://'+window.location.host+'/websocket'
 var webSock = new WebSocket(WS_HOST); // Internal
 
-// link map
+// Link map
 L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
 
 var map = L.mapbox.map('map')
 .setView([0, -4.932], 3)
 .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'));
 
-// add full screen option
+// Add full screen option
 L.control.fullscreen().addTo(map);
-
-// hq coords
-var hqLatLng = new L.LatLng(52.3058, 4.932);
-
-// hq marker
-L.circle(hqLatLng, 77000, {
-color: '#E20074',
-fillColor: '#E20074',
-fillOpacity: 0.2,
-}).addTo(map);
 
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
@@ -202,18 +192,22 @@ function handleTraffic(msg, srcPoint, hqPoint) {
 var circles = new L.LayerGroup();
 map.addLayer(circles);
 
+// Adds a circle that corresponds to srcLatLng
 function addCircle(msg, srcLatLng) {
-    circleCount = circles.getLayers().length;
-    circleArray = circles.getLayers();
-
-    L.circle(srcLatLng, 50000, {
+    var newCircle = L.circle(srcLatLng, 50000, {
         color: msg.color,
         fillColor: msg.color,
         fillOpacity: 0.2,
-        }).addTo(circles);
+    });
+    var circleToBeDestoyed = newCircle.id;
 
-    // Remove cirlce immediately once pinged
-    circles.removeLayer(circleArray[0]);
+    newCircle.addTo(circles);
+    setInterval(removeCircle(circleToBeDestoyed), 500);
+}
+
+// Removes existing circle
+function removeCircle(id) {
+    circles.removeLayer(id);
 }
 
 function prependAttackRow(id, args) {
