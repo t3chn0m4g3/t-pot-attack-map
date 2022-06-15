@@ -109,3 +109,14 @@
         overflow-y:scroll;
         overflow-x:auto;
     }
+
+    button {
+        background-color: blue;
+        width: 200px;
+        font-size: 20px;
+        padding: 10px;
+        border-radius: 5px;
+        border: 3px solid yellow;
+        color: white;
+        cursor: pointer;
+      }
