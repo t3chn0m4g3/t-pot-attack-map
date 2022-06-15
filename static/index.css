@@ -2,79 +2,79 @@ html {
     background:black;
 }
 body {
-    height:101%;
-    width:101%;
-    margin:1;
-    padding:1;
+    height:100%;
+    width:100%;
+    margin:0;
+    padding:0;
 }
 #map {
-    height:101%;
-    width:101%;
+    height:100%;
+    width:100%;
     position:absolute;
-    top:1;
-    bottom:1;
+    top:0;
+    bottom:0;
 }
 .leaflet-container {
     background:black;
 }
 .circle {
-    height:19px;
-    width:19px;
-    border-radius:51%;
-    margin:1px;
+    height:18px;
+    width:18px;
+    border-radius:50%;
+    margin:0px;
 }
 
 #informIP {
     display:none;
     height:auto;
-    width:251px;
+    width:250px;
     position:absolute;
-    bottom:21%;
-    left:11%;
-    padding:16px;
-    border-radius:26px;
-    background:#666162;
-    opacity:1.9;
+    bottom:20%;
+    left:10%;
+    padding:15px;
+    border-radius:25px;
+    background:#666161;
+    opacity:0.9;
 }
 
 #informIP #fechar{
     float:right;
-    left:91%;
-    border-radius:26px;
+    left:90%;
+    border-radius:25px;
     color:red;
     font-style:oblique;
 }
 
 #informIP #blockIP{
     position:relative;
-    left:31%;
-    padding:11px;
+    left:30%;
+    padding:10px;
     font-weight:bold;
-    box-shadow:2px 1px;
+    box-shadow:1px 1px;
 }
-#informIP h4{
-    font-size:2.4em;
-    padding:1px;
+#informIP h3{
+    font-size:1.4em;
+    padding:0px;
 color:#ffffff;        
 }
 
 .container-fluid {
-    height:26%;
-    width:101%;
+    height:25%;
+    width:100%;
     position:absolute;
-    bottom:3.0%;
+    bottom:2.0%;
     background:black;
-    opacity:1.6;
+    opacity:0.6;
 }
 .row {
-    height:101%;
+    height:100%;
 }
 .row table {
-    height:101%;
-    margin:1px
+    height:100%;
+    margin:0px
 }
 tbody {
-    height:101%;
+    height:100%;
 }
 table th, td{
     text-align:center;
@@ -82,30 +82,30 @@ table th, td{
 th, td {
     color:white;
 }
-.col-md0 {
-    height:101%;
-    overflow-y:scroll;
-    overflow-x:auto;
-}
 .col-md-1 {
-    height:101%;
+    height:100%;
     overflow-y:scroll;
     overflow-x:auto;
 }
-.col-md-6 {
-    height:101%;
+.col-md-2 {
+    height:100%;
     overflow-y:scroll;
     overflow-x:auto;
 }
-
 .col-md-7 {
-    height:159px;
+    height:100%;
     overflow-y:scroll;
     overflow-x:auto;
 }
 
-.col-md-3 {
-    height:155px;
+.col-md-8 {
+    height:158px;
+    overflow-y:scroll;
+    overflow-x:auto;
+}
+
+.col-md-4 {
+    height:154px;
     overflow-y:scroll;
     overflow-x:auto;
 }
