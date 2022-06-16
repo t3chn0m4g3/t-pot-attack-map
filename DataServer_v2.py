@@ -91,13 +91,15 @@ def get_honeypot_data():
 def process_data(hit):
     alert = {}
 
-    # Assign all the different alerts 
+    # Assign all the different alerts
     alert["as_org"] = hit["_source"]["type"]
 
     alert["country"] = hit["_source"]["geoip"].get("country_name", "")
     alert["country_code"] = hit["_source"]["geoip"].get("country_code2", "")
     alert["continent_code"] = hit["_source"]["geoip"].get("continent_code", "")
 
+    alert["region_name"] = hit["_source"]["geoip_ext"]["region_name"]
+    alert["dst_country_code"] = hit["_source"]["geoip_ext"]["country_code3"]
     alert["dst_lat"] = hit["_source"]["geoip_ext"]["latitude"]
     alert["dst_long"] = hit["_source"]["geoip_ext"]["longitude"]
     alert["dst_ip"] = hit["_source"]["geoip_ext"]["ip"]
@@ -187,6 +189,7 @@ def push(alerts):
             "iso_code": alert["iso_code"],
             "continent": "South America",
             "type3": "source:"+alert["detect_source"]+" port: "+str(alert["dst_port"]),
+            "region_name": alert["region_name"],
             "type2": alert["dst_port"],
             "city": alert["as_org"],
             "ips_tracked": ips_tracked,
@@ -197,6 +200,7 @@ def push(alerts):
             "continents_tracked": continent_tracked,
             "type": "Traffic",
             "country_to_code": countries_to_code,
+            "dst_country_code": alert["dst_country_code"],
             "dst_long": alert["dst_long"],
             "continent_code": alert["continent_code"],
             "dst_lat": alert["dst_lat"],
@@ -211,7 +215,8 @@ def push(alerts):
             "dst_ip": alert["dst_ip"]
         }
         json_data["ips_tracked"] = ips_tracked
-        event_count+=1
+        print(json_data)
+        event_count+=0
         tmp = json.dumps(json_data)
         redis_instance.publish('attack-map-production', tmp)
 
