@@ -358,8 +358,8 @@ function handleLegendType(msg) {
 }
 
 // Adds the HQ point to the map and its corresponding popup
-function addHqToMap(msg) {
-    var marker = L.marker([52.3057, 4.932], {
+function addHqToMap(lat, lng, msg) {
+    var marker = L.marker([lat, lng], {
         icon: L.mapbox.marker.icon({'marker-color': '#9c89cc'}),
     })
     .bindPopup(msg)
@@ -401,7 +401,7 @@ webSock.onmessage = function (e) {
             console.log('');
 
             addCircle(msg, srcLatLng);
-            addHqToMap(formatMessage(msg));
+            addHqToMap(msg.dst_lat, msg.dst_long, formatMessage(msg));
 
             handleParticle(msg, srcPoint);
             handleTraffic(msg, srcPoint, hqPoint, srcLatLng);
