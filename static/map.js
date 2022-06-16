@@ -22,9 +22,6 @@ map.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'));
 // Add full screen option
 L.control.fullscreen().addTo(map);
 
-// HQ coords
-var hqLatLng = new L.LatLng(52.3058, 4.932);
-
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
 .attr("class", "leaflet-zoom-animated")
@@ -368,17 +365,6 @@ function addHqToMap(lat, lng, msg) {
     var popup = L.popup()
         .setLatLng(hqLatLng)
         .setContent(msg);
-
-    var hqCircle = L.circle(
-        hqLatLng, 90000, {
-        color: '#E20074',
-        fillColor: '#E20074',
-        fillOpacity: 0.8,
-    }).addTo(map);
-
-    hqCircle.on('click', function(e) {
-        popup.openOn(map);
-    });
 }
 
 function formatMessage(msg) {
