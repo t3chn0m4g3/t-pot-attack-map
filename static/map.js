@@ -202,7 +202,7 @@ function addCircle(msg, srcLatLng) {
     circleArray = circles.getLayers();
 
     // Only allow 50 circles to be on the map at a time
-    if (circleCount >= 500) {
+    if (circleCount >= 100) {
         circles.removeLayer(circleArray[0]);
     }
 
@@ -220,15 +220,15 @@ function prependAttackRow(id, args) {
     for (var i = 0; i < count; i++) {
         var td = document.createElement('td');
         if (args[i] === args[2]) {
-        var path = 'flags/' + args[i] + '.png';
-        var img = document.createElement('img');
-        img.src = path;
-        td.appendChild(img);
-        tr.appendChild(td);
+            var path = 'flags/' + args[i] + '.png';
+            var img = document.createElement('img');
+            img.src = path;
+            td.appendChild(img);
+            tr.appendChild(td);
         } else {
-        var textNode = document.createTextNode(args[i]);
-        td.appendChild(textNode);
-        tr.appendChild(td);
+            var textNode = document.createTextNode(args[i]);
+            td.appendChild(textNode);
+            tr.appendChild(td);
         }
     }
 
@@ -362,7 +362,7 @@ function addHqToMap(msg) {
     var marker = L.marker([52.3057, 4.932], {
         icon: L.mapbox.marker.icon({'marker-color': '#9c89cc'}),
     })
-    .bindPopup('<b> Virginia, US </b>')
+    .bindPopup(msg)
     .addTo(map);
 
     var popup = L.popup()
@@ -382,7 +382,7 @@ function addHqToMap(msg) {
 }
 
 function formatMessage(msg) {
-    return '<p> ' + msg.region_name + ', ' + msg.country_code3 + ' </p>';
+    return '<b> ' + msg.region_name + ', ' + msg.country_code4 + ' </b>';
 }
 
 // Websocket Stuff
