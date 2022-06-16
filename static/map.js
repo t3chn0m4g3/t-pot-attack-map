@@ -19,14 +19,14 @@ var map = L.mapbox.map('map')
 L.control.fullscreen().addTo(map);
 
 // hq coords
-// var hqLatLng = new L.LatLng(52.3058, 4.932);
+var hqLatLng = new L.LatLng(52.3058, 4.932);
 
 // hq marker
-// L.circle(hqLatLng, 77000, {
-// color: '#E20074',
-// fillColor: '#E20074',
-// fillOpacity: 0.2,
-// }).addTo(map);
+var hqCircle = L.circle(hqLatLng, 77000, {
+color: '#E20074',
+fillColor: '#E20074',
+fillOpacity: 0.2,
+});
 
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
@@ -363,8 +363,29 @@ function handleLegendType(msg) {
 
 }
 
-// WEBSOCKET STUFF
+// Adds the HQ point to the map and its corresponding popup
+function addHqToMap(msg) {
+    var popup = L.popup()
+        .setLatLng(hqLatLng)
+        .setContent(msg);
 
+    var hqCircle = L.circle(
+        hqLatLng, 90000, {
+        color: '#FDB712',
+        fillColor: '#FDB712',
+        fillOpacity: 0.2,
+    }).addTo(map);
+
+    hqCircle.on('click', function(e) {
+        popup.openOn(map);
+    });
+}
+
+function formatMessage(msg) {
+    return '<p> ' + msg.region_name + ', ' + msg.country_code3 + ' </p>';
+}
+
+// Websocket Stuff
 webSock.onmessage = function (e) {
     console.log("Got a websocket message...");
     try {
@@ -377,21 +398,17 @@ webSock.onmessage = function (e) {
             var hqLatLng = new L.LatLng(msg.dst_lat, msg.dst_long);
             var srcPoint = map.latLngToLayerPoint(srcLatLng);
             var hqPoint = map.latLngToLayerPoint(hqLatLng)
-
-            L.circle(hqLatLng, 90000, {
-            color: '#185EAB',
-            fillColor: '#FDB712',
-            fillOpacity: 0.2,
-            }).addTo(map);
-
             console.log('');
+
             addCircle(msg, srcLatLng);
+            addHqToMap(formatMessage(msg));
+
             handleParticle(msg, srcPoint);
             handleTraffic(msg, srcPoint, hqPoint, srcLatLng);
             handleLegend(msg);
             handleLegendType(msg);
             break;
-        // Add support for other message types?
+            // Add support for other message types?
         }
     } catch(err) {
         console.log(err)
