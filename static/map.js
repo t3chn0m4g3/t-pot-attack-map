@@ -382,7 +382,7 @@ function addHqToMap(msg) {
 }
 
 function formatMessage(msg) {
-    return '<b> ' + msg.region_name + ', ' + msg.country_code4 + ' </b>';
+    return '<b> ' + msg.region_name + ', ' + msg.dst_country_code + ' </b>';
 }
 
 // Websocket Stuff
