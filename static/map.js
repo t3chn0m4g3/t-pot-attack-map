@@ -233,7 +233,7 @@ function prependAttackRow(id, args) {
     var rowCount = element.rows.length;
 
     // Only allow 50 rows
-    if (rowCount >= 50) {
+    if (rowCount >= 500) {
         element.deleteRow(rowCount -1);
     }
 
