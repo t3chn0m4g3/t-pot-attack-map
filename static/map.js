@@ -365,12 +365,7 @@ function addHqToMap(hqLatLng, msg) {
 }
 
 function formatMessage(msg) {
-    // Timezone in the format: country/city
-    const timezone = str(msg.dst_timezone)
-    const country = str(msg.dst_country_code)
-    const city = timezone.split('/')[1]
-
-    return '<b> ' + city + ', ' + country + ' </b>';
+    return '<b> ' + msg.city_name + ', ' + msg.dst_country_code + ' </b>';
 }
 
 // Websocket Stuff
