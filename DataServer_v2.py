@@ -98,13 +98,13 @@ def process_data(hit):
     alert["country_code"] = hit["_source"]["geoip"].get("country_code2", "")
     alert["continent_code"] = hit["_source"]["geoip"].get("continent_code", "")
 
-    alert["city_name"] = hit["_source"]["geoip_ext"]["city_name"]
     alert["dst_country_code"] = hit["_source"]["geoip_ext"]["country_code3"]
     alert["dst_lat"] = hit["_source"]["geoip_ext"]["latitude"]
     alert["dst_long"] = hit["_source"]["geoip_ext"]["longitude"]
     alert["dst_ip"] = hit["_source"]["geoip_ext"]["ip"]
 
     alert["event_time"] = str(hit["_source"]["@timestamp"][0:10]) + " " + str(hit["_source"]["@timestamp"][11:19])
+    alert["dst_timezone"] = hit["_source"]["geoip_ext"]["timezone"]
 
     alert["iso_code"] = hit["_source"]["geoip"]["country_code2"]
     alert["latitude"] = hit["_source"]["geoip"]["latitude"]
@@ -190,7 +190,6 @@ def push(alerts):
             "iso_code": alert["iso_code"],
             "continent": "South America",
             "type3": "source:" + alert["detect_source"] +" port: "+str(alert["dst_port"]),
-            "city_name": alert["city_name"],
             "type2": alert["dst_port"],
             "city": alert["as_org"],
             "ips_tracked": ips_tracked,

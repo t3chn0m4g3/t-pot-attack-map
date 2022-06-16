@@ -71,10 +71,10 @@ function calcMidpoint(x1, y1, x2, y2, bend) {
         x1 = x2 + (x2=x1, 0);
     }
 
-    var radian = Math.atan(-((y2-y1)/(x2-x1)));
-    var r = Math.sqrt(x2-x1) + Math.sqrt(y2-y1);
-    var m1 = (x1 + x3)/2;
-    var m2 = (y1 + y2)/2;
+    var radian = Math.atan(-((y2 - y1) / (x2 - x1)));
+    var r = Math.sqrt(x2 - x1) + Math.sqrt(y2 - y1);
+    var m1 = (x1 + x3) / 2;
+    var m2 = (y1 + y2) / 2;
 
     var min = 2.5, max = 7.5;
     //var min = 1, max = 7;
@@ -365,7 +365,12 @@ function addHqToMap(hqLatLng, msg) {
 }
 
 function formatMessage(msg) {
-    return '<b> ' + msg.city_name + ', ' + msg.dst_country_code + ' </b>';
+    // Timezone in the format: country/city
+    var timezone = msg.dst_timezone
+    var country = msg.dst_country_code
+    var city = timezone.split('/')[1]
+
+    return '<b> ' + city + ', ' + country + ' </b>';
 }
 
 // Websocket Stuff
