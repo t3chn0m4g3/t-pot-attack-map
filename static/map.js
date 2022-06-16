@@ -24,9 +24,9 @@ L.control.fullscreen().addTo(map);
 
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
-.attr("class", "leaflet-zoom-animated")
-.attr("width", window.innerWidth)
-.attr("height", window.innerHeight);
+            .attr("class", "leaflet-zoom-animated")
+            .attr("width", window.innerWidth)
+            .attr("height", window.innerHeight);
 
 function translateSVG() {
     var viewBoxLeft = document.querySelector("svg.leaflet-zoom-animated").viewBox.animVal.x;
@@ -73,8 +73,8 @@ function calcMidpoint(x1, y1, x2, y2, bend) {
 
     var radian = Math.atan(-((y2-y1)/(x2-x1)));
     var r = Math.sqrt(x2-x1) + Math.sqrt(y2-y1);
-    var m1 = (x1+x2)/2;
-    var m2 = (y1+y2)/2;
+    var m1 = (x1 + x3)/2;
+    var m2 = (y1 + y2)/2;
 
     var min = 2.5, max = 7.5;
     //var min = 1, max = 7;
@@ -117,7 +117,6 @@ function handleParticle(msg, srcPoint) {
         .attr('cy', y)
         .attr('r', 1e-6)
         .style('fill', 'none')
-        //.style('stroke', d3.hsl((i = (i + 1) % 360), 1, .5))
         .style('stroke', msg.color)
         .style('stroke-opacity', 1)
         .transition()
@@ -126,8 +125,6 @@ function handleParticle(msg, srcPoint) {
         .attr('r', 35)
         .style('stroke-opacity', 1e-6)
         .remove();
-
-    //d3.event.preventDefault();
 }
 
 function handleTraffic(msg, srcPoint, hqPoint) {
@@ -394,9 +391,8 @@ webSock.onmessage = function (e) {
             handleLegend(msg);
             handleLegendType(msg);
             break;
-            // Add support for other message types?
         }
-    } catch(err) {
+    } catch (err) {
         console.log(err)
     }
 }

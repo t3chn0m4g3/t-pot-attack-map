@@ -125,9 +125,6 @@ def process_data(hit):
     if not alert["src_ip"] == "":
         alert["color"] = service_rgb[alert["protocol"].upper()]
 
-        if 'SG' in hit["_source"]:
-            print(alert)
-
         return alert
     else:
         print("SRC IP EMPTY")
@@ -189,9 +186,10 @@ def push(alerts):
         json_data = {
             "protocol": alert["protocol"],
             "color": alert["color"],
+            "postal_code": "null",
             "iso_code": alert["iso_code"],
-            "continent": alert["continent_code"],
-            "type3": "source:" + alert["detect_source"] + " port: " + str(alert["dst_port"]),
+            "continent": "South America",
+            "type3": "source:" + alert["detect_source"] +" port: "+str(alert["dst_port"]),
             "city_name": alert["city_name"],
             "type2": alert["dst_port"],
             "city": alert["as_org"],
