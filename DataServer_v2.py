@@ -98,7 +98,7 @@ def process_data(hit):
     alert["country_code"] = hit["_source"]["geoip"].get("country_code2", "")
     alert["continent_code"] = hit["_source"]["geoip"].get("continent_code", "")
 
-    alert["region_name"] = hit["_source"]["geoip_ext"]["region_name"]
+    alert["city_name"] = hit["_source"]["geoip_ext"]["city_name"]
     alert["dst_country_code"] = hit["_source"]["geoip_ext"]["country_code3"]
     alert["dst_lat"] = hit["_source"]["geoip_ext"]["latitude"]
     alert["dst_long"] = hit["_source"]["geoip_ext"]["longitude"]
@@ -124,6 +124,10 @@ def process_data(hit):
 
     if not alert["src_ip"] == "":
         alert["color"] = service_rgb[alert["protocol"].upper()]
+
+        if 'SG' in hit["_source"]:
+            print(alert)
+
         return alert
     else:
         print("SRC IP EMPTY")
@@ -185,11 +189,10 @@ def push(alerts):
         json_data = {
             "protocol": alert["protocol"],
             "color": alert["color"],
-            "postal_code": "null",
             "iso_code": alert["iso_code"],
-            "continent": "South America",
-            "type3": "source:"+alert["detect_source"]+" port: "+str(alert["dst_port"]),
-            "region_name": alert["region_name"],
+            "continent": alert["continent_code"],
+            "type3": "source:" + alert["detect_source"] + " port: " + str(alert["dst_port"]),
+            "city_name": alert["city_name"],
             "type2": alert["dst_port"],
             "city": alert["as_org"],
             "ips_tracked": ips_tracked,
@@ -215,13 +218,9 @@ def push(alerts):
             "dst_ip": alert["dst_ip"]
         }
         json_data["ips_tracked"] = ips_tracked
-        print(json_data)
         event_count+=0
         tmp = json.dumps(json_data)
         redis_instance.publish('attack-map-production', tmp)
-
-
-
 
 if __name__ == '__main__':
     try:

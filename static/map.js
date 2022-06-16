@@ -233,7 +233,7 @@ function prependAttackRow(id, args) {
     var rowCount = element.rows.length;
 
     // Only allow 50 rows
-    if (rowCount >= 500) {
+    if (rowCount >= 50) {
         element.deleteRow(rowCount -1);
     }
 
@@ -368,7 +368,7 @@ function addHqToMap(hqLatLng, msg) {
 }
 
 function formatMessage(msg) {
-    return '<b> ' + msg.region_name + ', ' + msg.dst_country_code + ' </b>';
+    return '<b> ' + msg.city_name + ', ' + msg.dst_country_code + ' </b>';
 }
 
 // Websocket Stuff
