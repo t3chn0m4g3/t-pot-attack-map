@@ -8,34 +8,28 @@
 const WS_HOST = 'ws://'+window.location.host+'/websocket'
 var webSock = new WebSocket(WS_HOST); // Internal
 
-// link map
+// Link map
 L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
 
-var map = L.mapbox.map('map')
-.setView([0, -4.932], 3)
-.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'));
+var map = L.map('map', {
+    "scrollWheelZoom": false,
+    "doubleClickZoom": false,
+    "zoomControl": false
+});
+map.setView([0, -4.932], 3)
+map.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'));
 
-// add full screen option
+// Add full screen option
 L.control.fullscreen().addTo(map);
 
-// hq coords
+// HQ coords
 var hqLatLng = new L.LatLng(52.3058, 4.932);
-
-// hq marker
-var hqCircle = L.circle(hqLatLng, 77000, {
-color: '#E20074',
-fillColor: '#E20074',
-fillOpacity: 0.2,
-});
 
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
 .attr("class", "leaflet-zoom-animated")
 .attr("width", window.innerWidth)
 .attr("height", window.innerHeight);
-
-// Append <g> to svg
-//var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
 function translateSVG() {
     var viewBoxLeft = document.querySelector("svg.leaflet-zoom-animated").viewBox.animVal.x;
@@ -208,7 +202,7 @@ function addCircle(msg, srcLatLng) {
     circleArray = circles.getLayers();
 
     // Only allow 50 circles to be on the map at a time
-    if (circleCount >= 5000) {
+    if (circleCount >= 500) {
         circles.removeLayer(circleArray[0]);
     }
 
@@ -216,7 +210,7 @@ function addCircle(msg, srcLatLng) {
         color: msg.color,
         fillColor: msg.color,
         fillOpacity: 0.2,
-        }).addTo(circles);
+    }).addTo(circles);
 }
 
 function prependAttackRow(id, args) {
@@ -365,15 +359,21 @@ function handleLegendType(msg) {
 
 // Adds the HQ point to the map and its corresponding popup
 function addHqToMap(msg) {
+    var marker = L.marker([52.3057, 4.932], {
+        icon: L.mapbox.marker.icon({'marker-color': '#9c89cc'}),
+    })
+    .bindPopup('<b> Virginia, US </b>')
+    .addTo(map);
+
     var popup = L.popup()
         .setLatLng(hqLatLng)
         .setContent(msg);
 
     var hqCircle = L.circle(
         hqLatLng, 90000, {
-        color: '#FDB712',
-        fillColor: '#FDB712',
-        fillOpacity: 0.2,
+        color: '#E20074',
+        fillColor: '#E20074',
+        fillOpacity: 0.8,
     }).addTo(map);
 
     hqCircle.on('click', function(e) {
