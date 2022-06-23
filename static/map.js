@@ -5,12 +5,16 @@
 //   - Internal IP: 127.0.0.1
 //   - External IP: 192.168.11.106
 // For Proxy_Pass to work we need to use wss:// instead of ws://
-const WS_HOST = 'ws://'+window.location.host+'/websocket'
+
+
+// Settling websocket stuff
+const WS_HOST = 'ws://' + window.location.host + '/websocket'
 var webSock = new WebSocket(WS_HOST); // Internal
 
 // Link map
 L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
 
+// Initializing map
 var map = L.map('map', {
     "scrollWheelZoom": false,
     "doubleClickZoom": false,
@@ -18,8 +22,6 @@ var map = L.map('map', {
 });
 map.setView([0, -4.932], 3)
 map.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'));
-
-// Add full screen option
 L.control.fullscreen().addTo(map);
 
 // Append <svg> to map
@@ -77,7 +79,7 @@ function calcMidpoint(x1, y1, x2, y2, bend) {
     var m2 = (y1 + y2) / 2;
 
     var min = 2.5, max = 7.5;
-    //var min = 1, max = 7;
+
     var arcIntensity = parseFloat((Math.random() * (max - min) + min).toFixed(2));
 
     if (bend === true) {
@@ -195,7 +197,7 @@ function addCircle(msg, srcLatLng) {
     circleCount = circles.getLayers().length;
     circleArray = circles.getLayers();
 
-    // Only allow 50 circles to be on the map at a time
+    // Only allow 100 circles to be on the map at a time
     if (circleCount >= 100) {
         circles.removeLayer(circleArray[0]);
     }
