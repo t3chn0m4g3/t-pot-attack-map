@@ -11,6 +11,21 @@
 const WS_HOST = 'ws://' + window.location.host + '/websocket'
 var webSock = new WebSocket(WS_HOST); // Internal
 
+// All honeypot locations
+const lat_long_location = [
+	// Singapore
+	[1.29041, 103.85211, 'Singapore'], 
+	// California
+	[37.94284, -122.33667, 'California, US'],
+	// Virginia
+	[37.54068, -77.43367, 'Virginia, US'],
+	// Frankfurt
+	[50.11208, 8.68341, 'Frankfurt, Germany'],
+	// Seoul
+	[37.55886, 126.99989, 'Seoul, South Korea']
+]
+
+
 // Link map
 L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
 
@@ -19,9 +34,9 @@ var map = L.map('map', {
     "scrollWheelZoom": false,
     "doubleClickZoom": false,
     "zoomControl": false
-});
-map.setView([0, -4.932], 3)
-map.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'));
+})
+.setView([0, -4.932], 3)
+.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'))
 L.control.fullscreen().addTo(map);
 
 // Append <svg> to map
@@ -56,6 +71,7 @@ function update() {
 
 // Re-draw on reset, this keeps the markers where they should be on reset/zoom
 map.on("moveend", update);
+addAllMarkers();
 
 function calcMidpoint(x1, y1, x2, y2, bend) {
     if(y2<y1 && x2<x1) {
@@ -356,18 +372,26 @@ function handleLegendType(msg) {
 // Adds the HQ point to the map and its corresponding popup
 function addHqToMap(hqLatLng, msg) {
     var marker = L.marker([hqLatLng.lat, hqLatLng.lng], {
-        icon: L.mapbox.marker.icon({'marker-color': '#9c89cc'}),
+        icon: L.mapbox.marker.icon({'marker-color': '#ffa500'}),
     })
     .bindPopup(msg)
     .addTo(map);
-
-    var popup = L.popup()
-        .setLatLng(hqLatLng)
-        .setContent(msg);
 }
 
 function formatMessage(msg) {
     return '<b> ' + msg.city_name + ', ' + msg.dst_country_code + ' </b>';
+}
+
+// Adds the markers for all honeypots. Runs once at the start.
+function addAllMarkers(colorCode) {
+
+	for (let i = 0; i < lat_long_location.length; i++) {
+    	var marker = L.marker([lat_long_location[i][0], lat_long_location[i][1]], {
+			icon: L.mapbox.marker.icon({'marker-color': '#9c89cc'}),
+    	});
+    	marker.addTo(map);
+   	 	marker.bindPopup(lat_long_location[i][2])
+	}
 }
 
 // Websocket Stuff
