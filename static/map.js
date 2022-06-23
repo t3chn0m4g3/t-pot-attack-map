@@ -11,6 +11,8 @@
 const WS_HOST = 'ws://' + window.location.host + '/websocket'
 var webSock = new WebSocket(WS_HOST); // Internal
 
+var isLightTheme = false;
+
 // All honeypot locations
 const lat_long_location = [
 	// Singapore
@@ -107,6 +109,16 @@ function calcMidpoint(x1, y1, x2, y2, bend) {
     }
 
     return {"x":a, "y":b};
+}
+
+// Function that changes the theme
+function changeTheme() {
+	if (isLightTheme == true) {
+		map.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'))
+	} else {
+		map.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/light-v10'))
+	}
+	isLightTheme = !isLightTheme;
 }
 
 function translateAlong(path) {
