@@ -18,7 +18,7 @@ const lat_long_location = [
 	// Singapore
 	[1.29041, 103.85211, 'Singapore'], 
 	// California
-	[37.94284, -122.33667, 'California, US'],
+	[37.3388, -121.8916, 'California, US'],
 	// Virginia
 	[39.0469, -77.4903, 'Virginia, US'],
 	// Frankfurt
