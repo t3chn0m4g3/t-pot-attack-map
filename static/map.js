@@ -4,17 +4,24 @@ var webSock = new WebSocket(WS_HOST); // Internal
 
 // Constants
 const INIT_MARKER_REMOVED = 'Removed';
+const coor_location = {
+    'Singapore': [1.29041, 103.85211],
+    'San Jose': [37.3388, -121.8916],
+    'Ashburn': [39.0469, -77.4903],
+    'Frankfurt am Main': [50.11208, 8.68341],
+    'Incheon': [37.55886, 126.99989]
+}
 const lat_long_location = [
 	// Singapore
 	[1.29041, 103.85211, 'Singapore'], 
 	// California
-	[37.3388, -121.8916, 'California, US'],
+	[37.3388, -121.8916, 'San Jose'],
 	// Virginia
-	[39.0469, -77.4903, 'Virginia, US'],
+	[39.0469, -77.4903, 'Ashburn'],
 	// Frankfurt
-	[50.11208, 8.68341, 'Frankfurt, Germany'],
+	[50.11208, 8.68341, 'Frankfurt am Main'],
 	// Seoul
-	[37.55886, 126.99989, 'Seoul, South Korea']
+	[37.55886, 126.99989, 'Incheon']
 ]
 
 // Variables
@@ -375,8 +382,8 @@ function handleLegendType(msg) {
 }
 
 // Adds the HQ point to the map and its corresponding popup
-function addHqToMap(hqLatLng, msg) {
-    if (dict[hqLatLng.toString()] != INIT_MARKER_REMOVED) {
+function addHqToMap(hqLatLng, cityName, msg) {
+    if (dict[coor_location[cityName].toString()] != INIT_MARKER_REMOVED) {
         // Removing initial not-attacked marker from map
         map.removeLayer[dict[hqLatLng.toString()]];
         dict[hqLatLng.toString()] = INIT_MARKER_REMOVED;
@@ -426,7 +433,7 @@ webSock.onmessage = function (e) {
             console.log('');
 
             addCircle(msg, srcLatLng);
-            addHqToMap(hqLatLng, formatMessage(msg));
+            addHqToMap(hqLatLng, msg.city_name, formatMessage(msg));
 
             handleParticle(msg, srcPoint);
             handleTraffic(msg, srcPoint, hqPoint, srcLatLng);
