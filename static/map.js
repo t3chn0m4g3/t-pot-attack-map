@@ -13,6 +13,9 @@ var webSock = new WebSocket(WS_HOST); // Internal
 
 var isLightTheme = false;
 
+var dict = new Object();
+const INIT_MARKER_REMOVED = 'removed';
+
 // All honeypot locations
 const lat_long_location = [
 	// Singapore
@@ -37,8 +40,11 @@ var map = L.map('map', {
     "doubleClickZoom": false,
     "zoomControl": false
 })
-.setView([0, -4.932], 3)
-.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'))
+.setView([0, -4.932], 3);
+
+var currTheme = L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10');
+
+map.addLayer(currTheme);
 L.control.fullscreen().addTo(map);
 
 // Append <svg> to map
@@ -113,12 +119,16 @@ function calcMidpoint(x1, y1, x2, y2, bend) {
 
 // Function that changes the theme
 function changeTheme() {
+    map.removeLayer(currTheme);
 	if (isLightTheme == true) {
-		map.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'))
+		currTheme = L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10')
+        map.addLayer(currTheme);
 	} else {
-		map.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/light-v10'))
+		currTheme = L.mapbox.styleLayer('mapbox://styles/mapbox/light-v10')
+        map.addLayer(currTheme);
 	}
 	isLightTheme = !isLightTheme;
+
 }
 
 function translateAlong(path) {
@@ -383,11 +393,17 @@ function handleLegendType(msg) {
 
 // Adds the HQ point to the map and its corresponding popup
 function addHqToMap(hqLatLng, msg) {
-    var marker = L.marker([hqLatLng.lat, hqLatLng.lng], {
-        icon: L.mapbox.marker.icon({'marker-color': '#ffa500'}),
-    })
-    .bindPopup(msg)
-    .addTo(map);
+    if (dict[hqLatLng.toString()] != INIT_MARKER_REMOVED) {
+        // Removing initial not-attacked marker from map
+        map.removeLayer[dict[hqLatLng.toString()]];
+        dict[hqLatLng.toString()] = INIT_MARKER_REMOVED;
+    } else {
+        var marker = L.marker([hqLatLng.lat, hqLatLng.lng], {
+            icon: L.mapbox.marker.icon({'marker-color': '#ffa500'}),
+        })
+        .bindPopup(msg)
+        .addTo(map);
+    }
 }
 
 function formatMessage(msg) {
@@ -396,14 +412,17 @@ function formatMessage(msg) {
 
 // Adds the markers for all honeypots. Runs once at the start.
 function addAllMarkers(colorCode) {
-
 	for (let i = 0; i < lat_long_location.length; i++) {
     	var marker = L.marker([lat_long_location[i][0], lat_long_location[i][1]], {
 			icon: L.mapbox.marker.icon({'marker-color': '#9c89cc'}),
     	});
+
+        // Add entry to dict so the marker can be removed later
+        dict[lat_long_location[i].toString()] = marker;
+
     	marker.addTo(map);
-   	 	marker.bindPopup(lat_long_location[i][2])
-	}
+        marker.bindPopup(lat_long_location[i][2])
+    }
 }
 
 // Websocket Stuff
