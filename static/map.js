@@ -13,15 +13,15 @@ const coor_location = {
 }
 const lat_long_location = [
 	// Singapore
-	[1.29041, 103.85211, 'Singapore'], 
+	[1.29041, 103.85211], 
 	// California
-	[37.3388, -121.8916, 'San Jose'],
+	[37.3388, -121.8916],
 	// Virginia
-	[39.0469, -77.4903, 'Ashburn'],
+	[39.0469, -77.4903],
 	// Frankfurt
-	[50.11208, 8.68341, 'Frankfurt am Main'],
+	[50.11208, 8.68341],
 	// Seoul
-	[37.55886, 126.99989, 'Incheon']
+	[37.55886, 126.99989]
 ]
 
 // Variables
@@ -31,7 +31,7 @@ var currTheme;
 var map;
 var svg;
 
-
+// Initialize the map
 function initializeMap() {
     // Link map
     L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
