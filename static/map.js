@@ -87,11 +87,11 @@ function update() {
 /**
  * Calculates the midpoint between two given points.
  * 
- * @param {*} x1 The start x-coor
- * @param {*} y1 The start y-coor
- * @param {*} x2 The end x-coor
- * @param {*} y2 The end y-coor
- * @param {*} bend The curvature of the path
+ * @param {Integer} x1 The start x-coor
+ * @param {Integer} y1 The start y-coor
+ * @param {Integer} x2 The end x-coor
+ * @param {Integer} y2 The end y-coor
+ * @param {Boolean} bend The curvature of the path
  * @returns 
  */
 function calcMidpoint(x1, y1, x2, y2, bend) {
@@ -142,11 +142,6 @@ function changeTheme() {
 	isLightTheme = !isLightTheme;
 }
 
-/**
- * Moves the point along the path.
- * @param {} path 
- * @returns 
- */
 function translateAlong(path) {
     var l = path.getTotalLength();
     return function(i) {
