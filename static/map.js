@@ -1,22 +1,9 @@
-// To access by a browser in another computer, use the external IP of machine running AttackMapServer
-// from the same computer(only), you can use the internal IP.
-// Example:
-// - AttackMapServer machine:
-//   - Internal IP: 127.0.0.1
-//   - External IP: 192.168.11.106
-// For Proxy_Pass to work we need to use wss:// instead of ws://
-
-
 // Settling websocket stuff
 const WS_HOST = 'ws://' + window.location.host + '/websocket'
 var webSock = new WebSocket(WS_HOST); // Internal
 
-var isLightTheme = false;
-
-var dict = new Object();
-const INIT_MARKER_REMOVED = 'removed';
-
-// All honeypot locations
+// Constants
+const INIT_MARKER_REMOVED = 'Removed';
 const lat_long_location = [
 	// Singapore
 	[1.29041, 103.85211, 'Singapore'], 
@@ -30,28 +17,40 @@ const lat_long_location = [
 	[37.55886, 126.99989, 'Seoul, South Korea']
 ]
 
+// Variables
+var isLightTheme = false;
+var dict = new Object();
+var currTheme;
+var map;
+var svg;
 
-// Link map
-L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
 
-// Initializing map
-var map = L.map('map', {
-    "scrollWheelZoom": false,
-    "doubleClickZoom": false,
-    "zoomControl": false
-})
-.setView([0, -4.932], 3);
+function initializeMap() {
+    // Link map
+    L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
+    currTheme = L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10');
+    map = L.map('map', {
+        "scrollWheelZoom": false,
+        "doubleClickZoom": false,
+        "zoomControl": false
+    })
+    .setView([0, -4.932], 3)
+    .addLayer(currTheme);
 
-var currTheme = L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10');
+    // Enable fullscreen
+    L.control.fullscreen().addTo(map);
 
-map.addLayer(currTheme);
-L.control.fullscreen().addTo(map);
+    // Re-draw on reset, this keeps the markers where they should be on reset/zoom
+    map.on("moveend", update);
 
-// Append <svg> to map
-var svg = d3.select(map.getPanes().overlayPane).append("svg")
+    svg = d3.select(map.getPanes().overlayPane).append("svg")
             .attr("class", "leaflet-zoom-animated")
             .attr("width", window.innerWidth)
             .attr("height", window.innerHeight);
+
+    addAllMarkers();
+}
+
 
 function translateSVG() {
     var viewBoxLeft = document.querySelector("svg.leaflet-zoom-animated").viewBox.animVal.x;
@@ -74,26 +73,19 @@ function translateSVG() {
 
 function update() {
     translateSVG();
-    // additional stuff
 }
 
-// Re-draw on reset, this keeps the markers where they should be on reset/zoom
-map.on("moveend", update);
-addAllMarkers();
-
 function calcMidpoint(x1, y1, x2, y2, bend) {
-    if(y2<y1 && x2<x1) {
+    if (y2 < y1 && x2 < x1) {
         var tmpy = y2;
         var tmpx = x2;
         x2 = x1;
         y2 = y1;
         x1 = tmpx;
         y1 = tmpy;
-    }
-    else if(y2<y1) {
+    } else if (y2 < y1) {
         y1 = y2 + (y2=y1, 0);
-    }
-    else if(x2<x1) {
+    } else if (x2 < x1) {
         x1 = x2 + (x2=x1, 0);
     }
 
@@ -101,9 +93,7 @@ function calcMidpoint(x1, y1, x2, y2, bend) {
     var r = Math.sqrt(x2 - x1) + Math.sqrt(y2 - y1);
     var m1 = (x1 + x2) / 2;
     var m2 = (y1 + y2) / 2;
-
     var min = 2.5, max = 7.5;
-
     var arcIntensity = parseFloat((Math.random() * (max - min) + min).toFixed(2));
 
     if (bend === true) {
@@ -114,12 +104,13 @@ function calcMidpoint(x1, y1, x2, y2, bend) {
         var b = Math.floor(m2 + r * arcIntensity * Math.cos(radian));
     }
 
-    return {"x":a, "y":b};
+    return {"x": a, "y": b};
 }
 
 // Function that changes the theme
 function changeTheme() {
     map.removeLayer(currTheme);
+
 	if (isLightTheme == true) {
 		currTheme = L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10')
         map.addLayer(currTheme);
@@ -128,20 +119,18 @@ function changeTheme() {
         map.addLayer(currTheme);
 	}
 	isLightTheme = !isLightTheme;
-
 }
 
 function translateAlong(path) {
     var l = path.getTotalLength();
     return function(i) {
         return function(t) {
-            // Put in try/catch because sometimes floating point is stupid..
             try {
-            var p = path.getPointAtLength(t*l);
-            return "translate(" + p.x + "," + p.y + ")";
+                var p = path.getPointAtLength(t*l);
+                return "translate(" + p.x + "," + p.y + ")";
             } catch(err){
-            console.log("Caught exception.");
-            return "ERROR";
+                console.log("Caught exception.");
+                return "ERROR";
             }
         }
     }
@@ -174,13 +163,11 @@ function handleTraffic(msg, srcPoint, hqPoint) {
     var toY = hqPoint['y'];
     var bendArray = [true, false];
     var bend = bendArray[Math.floor(Math.random() * bendArray.length)];
-
     var lineData = [srcPoint, calcMidpoint(fromX, fromY, toX, toY, bend), hqPoint]
     var lineFunction = d3.svg.line()
         .interpolate("basis")
         .x(function(d) {return d.x;})
         .y(function(d) {return d.y;});
-
     var lineGraph = svg.append('path')
             .attr('d', lineFunction(lineData))
             .attr('opacity', 0.8)
@@ -194,7 +181,6 @@ function handleTraffic(msg, srcPoint, hqPoint) {
     }
 
     var circleRadius = 6
-
     // Circle follows the line
     var dot = svg.append('circle')
         .attr('r', circleRadius)
@@ -227,9 +213,6 @@ function handleTraffic(msg, srcPoint, hqPoint) {
                 .remove();
     });
 }
-
-var circles = new L.LayerGroup();
-map.addLayer(circles);
 
 function addCircle(msg, srcLatLng) {
     circleCount = circles.getLayers().length;
@@ -424,6 +407,8 @@ function addAllMarkers(colorCode) {
         marker.bindPopup(lat_long_location[i][2])
     }
 }
+
+initializeMap();
 
 // Websocket Stuff
 webSock.onmessage = function (e) {
