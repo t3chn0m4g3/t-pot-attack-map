@@ -2,7 +2,6 @@
 const WS_HOST = 'ws://' + window.location.host + '/websocket'
 var webSock = new WebSocket(WS_HOST); // Internal
 
-// Constants
 const INIT_MARKER_REMOVED = 'Removed';
 const coor_location = {
     'Singapore': [1.29041, 103.85211],
@@ -24,14 +23,15 @@ const lat_long_location = [
 	[37.55886, 126.99989]
 ]
 
-// Variables
 var isLightTheme = false;
 var dict = new Object();
 var currTheme;
 var map;
 var svg;
 
-// Initialize the map
+/**
+ * Initializes the map and sets the relevant properties.
+ */
 function initializeMap() {
     // Link map
     L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
@@ -58,7 +58,9 @@ function initializeMap() {
     addAllMarkers();
 }
 
-
+/**
+ * Translate the SVG.
+ */
 function translateSVG() {
     var viewBoxLeft = document.querySelector("svg.leaflet-zoom-animated").viewBox.animVal.x;
     var viewBoxTop = document.querySelector("svg.leaflet-zoom-animated").viewBox.animVal.y;
@@ -82,6 +84,16 @@ function update() {
     translateSVG();
 }
 
+/**
+ * Calculates the midpoint between two given points.
+ * 
+ * @param {*} x1 The start x-coor
+ * @param {*} y1 The start y-coor
+ * @param {*} x2 The end x-coor
+ * @param {*} y2 The end y-coor
+ * @param {*} bend The curvature of the path
+ * @returns 
+ */
 function calcMidpoint(x1, y1, x2, y2, bend) {
     if (y2 < y1 && x2 < x1) {
         var tmpy = y2;
@@ -114,7 +126,9 @@ function calcMidpoint(x1, y1, x2, y2, bend) {
     return {"x": a, "y": b};
 }
 
-// Function that changes the theme
+/**
+ * Changes the theme of the map.
+ */
 function changeTheme() {
     map.removeLayer(currTheme);
 
@@ -128,6 +142,11 @@ function changeTheme() {
 	isLightTheme = !isLightTheme;
 }
 
+/**
+ * Moves the point along the path.
+ * @param {} path 
+ * @returns 
+ */
 function translateAlong(path) {
     var l = path.getTotalLength();
     return function(i) {
@@ -221,7 +240,13 @@ function handleTraffic(msg, srcPoint, hqPoint) {
     });
 }
 
-function addCircle(msg, srcLatLng) {
+/**
+ * Adds a circle to the map.
+ * 
+ * @param {String} color The color of the circle
+ * @param {Array} srcLatLng An integer array containing the coords
+ */
+function addCircle(color, srcLatLng) {
     circleCount = circles.getLayers().length;
     circleArray = circles.getLayers();
 
@@ -381,7 +406,13 @@ function handleLegendType(msg) {
 
 }
 
-// Adds the HQ point to the map and its corresponding popup
+/**
+ * Adds the HQ point to the map and its corresponding popup.
+ * 
+ * @param {Array} hqLatLng An integer array containing the coordinates of the source
+ * @param {String} cityName The name of the city
+ * @param {String} msg The location of the hit
+ */
 function addHqToMap(hqLatLng, cityName, msg) {
     if (dict[coor_location[cityName].toString()] != INIT_MARKER_REMOVED) {
         // Removing initial not-attacked marker from map
@@ -396,12 +427,20 @@ function addHqToMap(hqLatLng, cityName, msg) {
     }
 }
 
+/**
+ * Bolds the message to be displayed in the popup.
+ * 
+ * @param {String} msg The location
+ * @returns Bolded message
+ */
 function formatMessage(msg) {
     return '<b> ' + msg.city_name + ', ' + msg.dst_country_code + ' </b>';
 }
 
-// Adds the markers for all honeypots. Runs once at the start.
-function addAllMarkers(colorCode) {
+/**
+ * Adds all the preliminary markers to the map. They symbolize the unattacked markers.
+ */
+function addAllMarkers() {
 	for (let i = 0; i < lat_long_location.length; i++) {
     	var marker = L.marker([lat_long_location[i][0], lat_long_location[i][1]], {
 			icon: L.mapbox.marker.icon({'marker-color': '#9c89cc'}),
@@ -432,7 +471,7 @@ webSock.onmessage = function (e) {
             var hqPoint = map.latLngToLayerPoint(hqLatLng)
             console.log('');
 
-            addCircle(msg, srcLatLng);
+            addCircle(msg.color, srcLatLng);
             addHqToMap(hqLatLng, msg.city_name, formatMessage(msg));
 
             handleParticle(msg, srcPoint);
