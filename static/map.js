@@ -28,13 +28,16 @@ var dict = new Object();
 var currTheme;
 var map;
 var svg;
+var circles = new L.LayerGroup();
 
-/**
+
+/** 
  * Initializes the map and sets the relevant properties.
  */
 function initializeMap() {
     // Link map
     L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
+
     currTheme = L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10');
     map = L.map('map', {
         "scrollWheelZoom": false,
@@ -46,6 +49,8 @@ function initializeMap() {
 
     // Enable fullscreen
     L.control.fullscreen().addTo(map);
+    
+    map.addLayer(circles);
 
     // Re-draw on reset, this keeps the markers where they should be on reset/zoom
     map.on("moveend", update);
