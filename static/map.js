@@ -5,7 +5,7 @@
 //   - Internal IP: 127.0.0.1
 //   - External IP: 192.168.11.106
 // For Proxy_Pass to work we need to use wss:// instead of ws://
-const WS_HOST = 'wss://'+window.location.host+'/websocket'
+const WS_HOST = 'ws://'+window.location.host+'/websocket'
 var webSock = new WebSocket(WS_HOST); // Internal
 
 // link map
@@ -18,15 +18,6 @@ var map = L.mapbox.map('map')
 // add full screen option
 L.control.fullscreen().addTo(map);
 
-// hq coords
-var hqLatLng = new L.LatLng(52.3058, 4.932);
-
-// hq marker
-L.circle(hqLatLng, 77000, {
-color: '#E20074',
-fillColor: '#E20074',
-fillOpacity: 0.2,
-}).addTo(map);
 
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
@@ -116,7 +107,7 @@ function translateAlong(path) {
     }
 }
 
-function handleParticle(msg, srcPoint) {
+function handleParticle(color, srcPoint) {
     var i = 0;
     var x = srcPoint['x'];
     var y = srcPoint['y'];
@@ -127,19 +118,20 @@ function handleParticle(msg, srcPoint) {
         .attr('r', 1e-6)
         .style('fill', 'none')
         //.style('stroke', d3.hsl((i = (i + 1) % 360), 1, .5))
-        .style('stroke', msg.color)
+        .style('stroke', color)
         .style('stroke-opacity', 1)
         .transition()
         .duration(2000)
         .ease(Math.sqrt)
-        .attr('r', 35)
+        // Circle radius source animation
+        .attr('r', 75)
         .style('stroke-opacity', 1e-6)
         .remove();
 
     //d3.event.preventDefault();
 }
 
-function handleTraffic(msg, srcPoint, hqPoint) {
+function handleTraffic(color, srcPoint, hqPoint) {
     var fromX = srcPoint['x'];
     var fromY = srcPoint['y'];
     var toX = hqPoint['x'];
@@ -156,7 +148,7 @@ function handleTraffic(msg, srcPoint, hqPoint) {
     var lineGraph = svg.append('path')
             .attr('d', lineFunction(lineData))
             .attr('opacity', 0.8)
-            .attr('stroke', msg.color)
+            .attr('stroke', color)
             .attr('stroke-width', 2)
             .attr('fill', 'none');
 
@@ -170,7 +162,7 @@ function handleTraffic(msg, srcPoint, hqPoint) {
     // Circle follows the line
     var dot = svg.append('circle')
         .attr('r', circleRadius)
-        .attr('fill', msg.color)
+        .attr('fill', color)
         .transition()
         .duration(700)
         .ease('ease-in')
@@ -178,8 +170,9 @@ function handleTraffic(msg, srcPoint, hqPoint) {
         .each('end', function() {
             d3.select(this)
                 .transition()
-                .duration(500)
-                .attr('r', circleRadius * 2.5)
+                .duration(1000)
+                // Circle radius destination animation
+                .attr('r', 75)
                 .style('opacity', 0)
                 .remove();
     });
@@ -203,7 +196,7 @@ function handleTraffic(msg, srcPoint, hqPoint) {
 var circles = new L.LayerGroup();
 map.addLayer(circles);
 
-function addCircle(msg, srcLatLng) {
+function addCircle(color, srcLatLng) {
     circleCount = circles.getLayers().length;
     circleArray = circles.getLayers();
 
@@ -213,8 +206,8 @@ function addCircle(msg, srcLatLng) {
     }
 
     L.circle(srcLatLng, 50000, {
-        color: msg.color,
-        fillColor: msg.color,
+        color: color,
+        fillColor: color,
         fillOpacity: 0.2,
         }).addTo(circles);
     }
@@ -344,7 +337,7 @@ function handleLegend(msg) {
               msg.src_ip,
               msg.iso_code,
               msg.country,
-              msg.city,
+              msg.honeypot,
               msg.protocol];
     redrawCountIP('#ip-tracking','ip-tracking', ipCountList, msg.ip_to_code);
     redrawCountIP2('#country-tracking', 'country-tracking', countryCountList, msg.country_to_code);
@@ -358,7 +351,7 @@ function handleLegendType(msg) {
              msg.iso_code,
              msg.src_ip,
              msg.country,
-             msg.city,
+             msg.honeypot,
              msg.protocol];
 
 }
@@ -374,14 +367,16 @@ webSock.onmessage = function (e) {
         case "Traffic":
             console.log("Traffic!");
             var srcLatLng = new L.LatLng(msg.src_lat, msg.src_long);
-            var hqPoint = map.latLngToLayerPoint(hqLatLng);
+            var dstLatLng = new L.LatLng(msg.dst_lat, msg.dst_long);
+            var dstPoint = map.latLngToLayerPoint(dstLatLng);
             var srcPoint = map.latLngToLayerPoint(srcLatLng);
             console.log('');
-            addCircle(msg, srcLatLng);
-            handleParticle(msg, srcPoint);
-            handleTraffic(msg, srcPoint, hqPoint, srcLatLng);
+            addCircle(msg.color, srcLatLng);
+            handleParticle(msg.color, srcPoint);
+            handleTraffic(msg.color, srcPoint, dstPoint, srcLatLng);
+            addCircle('#E20074', dstLatLng);
             handleLegend(msg);
-            handleLegendType(msg);
+            //handleLegendType(msg);
             break;
         // Add support for other message types?
         }
