@@ -1,12 +1,10 @@
 // To access by a browser in another computer, use the external IP of machine running AttackMapServer
 // from the same computer(only), you can use the internal IP.
-// Example:
-// - AttackMapServer machine:
-//   - Internal IP: 127.0.0.1
-//   - External IP: 192.168.11.106
-// For Proxy_Pass to work we need to use wss:// instead of ws://
+// For use within T-Pot:
+//   - Access AttackMap via T-Pot's WebUI (https://<your T-Pot IP>:64297/map/)
+//   - For Proxy_Pass to work we need to use wss:// instead of ws://
 const WS_HOST = 'ws://'+window.location.host+'/websocket'
-var webSock = new WebSocket(WS_HOST); // Internal
+var webSock = new WebSocket(WS_HOST);
 
 // link map
 L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
@@ -17,7 +15,6 @@ var map = L.mapbox.map('map')
 
 // add full screen option
 L.control.fullscreen().addTo(map);
-
 
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
@@ -344,17 +341,6 @@ function handleLegend(msg) {
     prependAttackRow('attack-tracking', attackList);
 }
 
-function handleLegendType(msg) {
-    var attackType = [msg.type2];
-    var attackCve = [msg.event_time,
-             msg.type3,
-             msg.iso_code,
-             msg.src_ip,
-             msg.country,
-             msg.honeypot,
-             msg.protocol];
-
-}
 
 // WEBSOCKET STUFF
 
@@ -376,7 +362,6 @@ webSock.onmessage = function (e) {
             handleTraffic(msg.color, srcPoint, dstPoint, srcLatLng);
             addCircle('#E20074', dstLatLng);
             handleLegend(msg);
-            //handleLegendType(msg);
             break;
         // Add support for other message types?
         }

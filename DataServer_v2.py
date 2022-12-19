@@ -6,6 +6,7 @@ import time
 import os
 import pickle
 
+# Within T-Pot: es = Elasticsearch('http://elasticsearch:9200') and redis_ip = 'map_redis'
 es = Elasticsearch('http://127.0.0.1:64298')
 redis_ip = '127.0.0.1'
 redis_instance = None
@@ -18,6 +19,7 @@ countries_to_code = {}
 countries_tracked = {}
 continent_tracked = {}
 
+# Color Codes for Attack Map
 service_rgb = {
     'FTP': '#ff0000',
     'SSH': '#ff8000',
@@ -175,8 +177,6 @@ def push(alerts):
             "color": alert["color"],
             "postal_code": "null",
             "iso_code": alert["iso_code"],
-            "type3": "source:" + alert["detect_source"] + " port: " + str(alert["dst_port"]),
-            "type2": alert["dst_port"],
             "honeypot": alert["honeypot"],
             "ips_tracked": ips_tracked,
             "src_port": alert["src_port"],

@@ -15,7 +15,10 @@ import tornado.websocket
 from os import getuid, path
 from sys import exit
 
-# Look up service colors
+# Within T-Pot: redis_ip = 'map_redis'
+redis_ip = '127.0.0.1'
+
+# Color Codes for Attack Map
 service_rgb = {
     'FTP': '#ff0000',
     'SSH': '#ff8000',
@@ -57,7 +60,7 @@ class WebSocketChatHandler(tornado.websocket.WebSocketHandler):
 
         try:
             # This is the IP address of the DataServer
-            self.client = tornadoredis.Client('127.0.0.1')
+            self.client = tornadoredis.Client(redis_ip)
             self.client.connect()
             print('[*] Connected to Redis server')
             yield tornado.gen.Task(self.client.subscribe, 'attack-map-production')
@@ -99,7 +102,7 @@ def main():
         # 'static_path': static_path
     }
 
-    # Create and start app listening on port 8888
+    # Create and start app listening on port 64299
     try:
         app = tornado.web.Application(handlers, **settings)
         app.listen(64299)
