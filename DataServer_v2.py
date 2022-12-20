@@ -104,18 +104,13 @@ def process_data(hit):
     alert["iso_code"] = hit["_source"]["geoip"]["country_code2"]
     alert["latitude"] = hit["_source"]["geoip"]["latitude"]
     alert["longitude"] = hit["_source"]["geoip"]["longitude"]
-    if not hit["_source"]["type"] == "":
-        # print(hit["_source"]["type"],"Port:",hit["_source"]["dest_port"])
-        alert["detect_source"] = hit["_source"]["type"]
-        alert["dst_port"] = hit["_source"]["dest_port"]
-        alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
-        alert["src_ip"] = hit["_source"]["src_ip"]
-        try:
-            alert["src_port"] = hit["_source"]["src_port"]
-        except:
-            alert["src_port"] = 0
-    else:
-        return
+    alert["dst_port"] = hit["_source"]["dest_port"]
+    alert["protocol"] = port_to_type(hit["_source"]["dest_port"])
+    alert["src_ip"] = hit["_source"]["src_ip"]
+    try:
+        alert["src_port"] = hit["_source"]["src_port"]
+    except:
+        alert["src_port"] = 0
     if not alert["src_ip"] == "":
         alert["color"] = service_rgb[alert["protocol"].upper()]
         return alert
@@ -175,7 +170,6 @@ def push(alerts):
         json_data = {
             "protocol": alert["protocol"],
             "color": alert["color"],
-            "postal_code": "null",
             "iso_code": alert["iso_code"],
             "honeypot": alert["honeypot"],
             "ips_tracked": ips_tracked,

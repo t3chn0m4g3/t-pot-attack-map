@@ -6,7 +6,6 @@ AUTHOR: Matthew May - mcmay.web@gmail.com
 
 # Imports
 import json
-import redis
 import tornadoredis
 import tornado.ioloop
 import tornado.web
@@ -80,7 +79,7 @@ class WebSocketChatHandler(tornado.websocket.WebSocketHandler):
             print("json error")
             print(msg.body)
             return None
-        
+
         self.write_message(json.dumps(json_data))
 
 
@@ -90,6 +89,7 @@ def main():
         (r'/websocket', WebSocketChatHandler),
         (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static'}),
         (r'/flags/(.*)', tornado.web.StaticFileHandler, {'path': 'static/flags'}),
+        (r'/images/(.*)', tornado.web.StaticFileHandler, {'path': 'static/images'}),
         (r'/', IndexHandler),
         (r'/tv(.*)', tornado.web.StaticFileHandler, {'path': 'tv.html'})
     ]
