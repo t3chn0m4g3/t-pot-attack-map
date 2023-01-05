@@ -41,7 +41,7 @@ service_rgb = {
 
 async def redis_subscriber(websockets):
     # Create a Redis connection
-    redis = await aioredis.from_url('redis://localhost:6379')
+    redis = await aioredis.from_url(redis_url)
     # Get the pubsub object for channel subscription
     pubsub = redis.pubsub()
     # Subscribe to a Redis channel
