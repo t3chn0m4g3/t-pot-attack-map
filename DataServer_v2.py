@@ -5,8 +5,10 @@ import datetime
 import time
 
 # Within T-Pot: es = Elasticsearch('http://elasticsearch:9200') and redis_ip = 'map_redis'
-es = Elasticsearch('http://127.0.0.1:64298')
-redis_ip = '127.0.0.1'
+#es = Elasticsearch('http://127.0.0.1:64298')
+#redis_ip = '127.0.0.1'
+es = Elasticsearch('http://elasticsearch:9200')
+redis_ip = 'map_redis'
 redis_instance = None
 
 event_count = 1

@@ -3,7 +3,7 @@
 // For use within T-Pot:
 //   - Access AttackMap via T-Pot's WebUI (https://<your T-Pot IP>:64297/map/)
 //   - For Proxy_Pass to work we need to use wss:// instead of ws://
-const WS_HOST = 'ws://'+window.location.host+'/websocket'
+const WS_HOST = 'wss://'+window.location.host+'/websocket'
 var webSock = new WebSocket(WS_HOST);
 
 // link map
