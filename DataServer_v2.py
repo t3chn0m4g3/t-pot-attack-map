@@ -3,8 +3,6 @@ import json
 import redis
 import datetime
 import time
-import os
-import pickle
 
 # Within T-Pot: es = Elasticsearch('http://elasticsearch:9200') and redis_ip = 'map_redis'
 es = Elasticsearch('http://127.0.0.1:64298')
