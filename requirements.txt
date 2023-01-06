@@ -1,5 +1,4 @@
-redis==4.3.3
-elasticsearch
 aiohttp
 aioredis
+elasticsearch
 redis
