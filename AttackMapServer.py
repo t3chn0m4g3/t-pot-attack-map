@@ -1,21 +1,25 @@
 #!/usr/bin/python3
 
 """
-AUTHOR: Matthew May - mcmay.web@gmail.com
+Original code (tornado based) by Matthew May - mcmay.web@gmail.com
+Adjusted code for asyncio, aiohttp and aioredis by t3chn0m4g3
 """
 
-# Imports
+from aiohttp import web
+import asyncio
+import aioredis
 import json
-import redis
-import tornadoredis
-import tornado.ioloop
-import tornado.web
-import tornado.websocket
+import logging
 
-from os import getuid, path
-from sys import exit
+# Within T-Pot: redis_url = 'redis://map_redis:6379'
+# redis_url = 'redis://127.0.0.1:6379'
+# web_port = 1234
+redis_url = 'redis://map_redis:6379'
+web_port = 64299
 
-# Look up service colors
+
+
+# Color Codes for Attack Map
 service_rgb = {
     'FTP': '#ff0000',
     'SSH': '#ff8000',
@@ -35,83 +39,86 @@ service_rgb = {
     'OTHER': '#ffffff'
 }
 
+async def redis_subscriber(websockets):
+    # Create a Redis connection
+    redis = await aioredis.from_url(redis_url)
+    # Get the pubsub object for channel subscription
+    pubsub = redis.pubsub()
+    # Subscribe to a Redis channel
+    channel = "attack-map-production"
+    await pubsub.subscribe(channel)
+    print("Redis connection established.")
+    # Start a loop to listen for messages on the channel
+    async with redis.pubsub() as pubsub:
+        await pubsub.subscribe(channel)
+        while True:
+            try:
+                msg = await pubsub.get_message(ignore_subscribe_messages=True)
+                if msg is not None:
+                    try:
+                        # Only take the data and forward as JSON to the connected websocket clients
+                        json_data = json.dumps(json.loads(msg['data']))
+                        #print(json_data)
+                        for ws in websockets:
+                            await ws.send_str(json_data)
+                    except:
+                        print("Something went wrong while sending JSON data.")
+                        pass
+            except asyncio.CancelledError:
+                print("error")
+                break
 
-class IndexHandler(tornado.web.RequestHandler):
-    @tornado.web.asynchronous
-    def get(request):
-        request.render('index.html')
+async def my_websocket_handler(request):
+    # Get the WebSocket object
+    ws = web.WebSocketResponse()
+    # Accept the WebSocket connection
+    await ws.prepare(request)
+    # Add the WebSocket to the list of websockets
+    request.app['websockets'].append(ws)
+    print(f"New WebSocket connection opened. Clients active: {len(request.app['websockets'])}")
+    # Start a loop to listen for messages
+    async for msg in ws:
+        if msg == aiohttp.WSMsgType.TEXT:
+            # Send the message back to the client
+            await ws.send_str(msg)
+        elif msg == aiohttp.WSMsgType.ERROR:
+            print('WebSocket connection closed with exception %s' % ws.exception())
+    # Remove the WebSocket from the list of websockets
+    request.app['websockets'].remove(ws)
+    print(f"Existing WebSocket connection closed. Clients active: {len(request.app['websockets'])}")
+    return ws
 
+# Serve index.html as static file
+async def my_index_handler(request):
+    return web.FileResponse('index.html')
 
-class WebSocketChatHandler(tornado.websocket.WebSocketHandler):
-    def __init__(self, *args, **kwargs):
-        super(WebSocketChatHandler, self).__init__(*args, **kwargs)
-        self.listen()
+async def start_background_tasks(app):
+    # Create an empty list to store WebSocket objects
+    app['websockets'] = []
+    # Start the Redis subscriber task
+    app['redis_subscriber'] = asyncio.create_task(
+        redis_subscriber(app['websockets'])
+    )
 
-    def check_origin(self, origin):
-        return True
+async def cleanup_background_tasks(app):
+    # Cancel the Redis subscriber task
+    app['redis_subscriber'].cancel()
+    # Wait for the Redis subscriber task to finish
+    await app['redis_subscriber']
 
-    @tornado.gen.engine
-    def listen(self):
-
-        print('[*] WebSocketChatHandler opened')
-
-        try:
-            # This is the IP address of the DataServer
-            self.client = tornadoredis.Client('map_redis')
-            self.client.connect()
-            print('[*] Connected to Redis server')
-            yield tornado.gen.Task(self.client.subscribe, 'attack-map-production')
-            self.client.listen(self.on_message)
-        except Exception as ex:
-            print('[*] Could not connect to Redis server.')
-            print('[*] {}'.format(str(ex)))
-
-    def on_close(self):
-        print('[*] Closing connection.')
-
-    # This function is called everytime a Redis message is received
-    def on_message(self, msg):
-        try:
-            json_data = json.loads(msg.body)
-        except Exception as ex:
-            print("json error")
-            print(msg.body)
-            return None
-        
-        self.write_message(json.dumps(json_data))
-
-
-def main():
-    # Register handler pages
-    handlers = [
-        (r'/websocket', WebSocketChatHandler),
-        (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': 'static'}),
-        (r'/flags/(.*)', tornado.web.StaticFileHandler, {'path': 'static/flags'}),
-        (r'/', IndexHandler),
-        (r'/tv(.*)', tornado.web.StaticFileHandler, {'path': 'tv.html'})
-    ]
-
-    # Define the static path
-    # static_path = path.join( path.dirname(__file__), 'static' )
-
-    # Define static settings
-    settings = {
-        # 'static_path': static_path
-    }
-
-    # Create and start app listening on port 8888
-    try:
-        app = tornado.web.Application(handlers, **settings)
-        app.listen(64299)
-        print('[*] Waiting on browser connections...')
-        tornado.ioloop.IOLoop.instance().start()
-    except Exception as appFail:
-        print(appFail)
-
+async def make_webapp():
+    app = web.Application()
+    #logging.basicConfig(level=logging.INFO)
+    app.add_routes([
+        web.get('/', my_index_handler),
+        web.get('/websocket', my_websocket_handler),
+        web.static('/static/', 'static'),
+        web.static('/images/', 'static/images'),
+        web.static('/flags/', 'static/flags')
+    ])
+    app.on_startup.append(start_background_tasks)
+    app.on_cleanup.append(cleanup_background_tasks)
+    return app
 
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print('\nSHUTTING DOWN')
-        exit()
+    web.run_app(make_webapp(), port=web_port)
