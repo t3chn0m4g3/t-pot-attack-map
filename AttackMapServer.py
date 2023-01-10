@@ -12,8 +12,8 @@ import json
 import logging
 
 # Within T-Pot: redis_url = 'redis://map_redis:6379'
-# redis_url = 'redis://127.0.0.1:6379'
-# web_port = 1234
+#redis_url = 'redis://127.0.0.1:6379'
+#web_port = 1234
 redis_url = 'redis://map_redis:6379'
 web_port = 64299
 
@@ -58,14 +58,14 @@ async def redis_subscriber(websockets):
                     try:
                         # Only take the data and forward as JSON to the connected websocket clients
                         json_data = json.dumps(json.loads(msg['data']))
-                        #print(json_data)
-                        for ws in websockets:
-                            await ws.send_str(json_data)
+                        # Process all connected websockets in parallel
+                        await asyncio.gather(*[ws.send_str(json_data) for ws in websockets])
                     except:
                         print("Something went wrong while sending JSON data.")
-                        pass
+                else:
+                    await asyncio.sleep(0.1)
             except asyncio.CancelledError:
-                print("error")
+                print("Cancelled.")
                 break
 
 async def my_websocket_handler(request):
