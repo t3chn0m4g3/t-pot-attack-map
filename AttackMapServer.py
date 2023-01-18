@@ -5,18 +5,20 @@ Original code (tornado based) by Matthew May - mcmay.web@gmail.com
 Adjusted code for asyncio, aiohttp and aioredis by t3chn0m4g3
 """
 
+
 from aiohttp import web
 import asyncio
 import aioredis
 import json
 import logging
 
+
 # Within T-Pot: redis_url = 'redis://map_redis:6379'
-#redis_url = 'redis://127.0.0.1:6379'
-#web_port = 1234
+# redis_url = 'redis://127.0.0.1:6379'
+# web_port = 1234
 redis_url = 'redis://map_redis:6379'
 web_port = 64299
-
+version = 'Attack Map Server 1.1.0'
 
 
 # Color Codes for Attack Map
@@ -39,6 +41,7 @@ service_rgb = {
     'OTHER': '#ffffff'
 }
 
+
 async def redis_subscriber(websockets):
     # Create a Redis connection
     redis = await aioredis.from_url(redis_url)
@@ -58,6 +61,7 @@ async def redis_subscriber(websockets):
                     try:
                         # Only take the data and forward as JSON to the connected websocket clients
                         json_data = json.dumps(json.loads(msg['data']))
+                        # print(json_data)
                         # Process all connected websockets in parallel
                         await asyncio.gather(*[ws.send_str(json_data) for ws in websockets])
                     except:
@@ -67,6 +71,7 @@ async def redis_subscriber(websockets):
             except asyncio.CancelledError:
                 print("Cancelled.")
                 break
+
 
 async def my_websocket_handler(request):
     # Get the WebSocket object
@@ -88,9 +93,11 @@ async def my_websocket_handler(request):
     print(f"Existing WebSocket connection closed. Clients active: {len(request.app['websockets'])}")
     return ws
 
+
 # Serve index.html as static file
 async def my_index_handler(request):
     return web.FileResponse('index.html')
+
 
 async def start_background_tasks(app):
     # Create an empty list to store WebSocket objects
@@ -100,15 +107,17 @@ async def start_background_tasks(app):
         redis_subscriber(app['websockets'])
     )
 
+
 async def cleanup_background_tasks(app):
     # Cancel the Redis subscriber task
     app['redis_subscriber'].cancel()
     # Wait for the Redis subscriber task to finish
     await app['redis_subscriber']
 
+
 async def make_webapp():
     app = web.Application()
-    #logging.basicConfig(level=logging.INFO)
+    # logging.basicConfig(level=logging.INFO)
     app.add_routes([
         web.get('/', my_index_handler),
         web.get('/websocket', my_websocket_handler),
@@ -120,5 +129,7 @@ async def make_webapp():
     app.on_cleanup.append(cleanup_background_tasks)
     return app
 
+
 if __name__ == '__main__':
+    print(version)
     web.run_app(make_webapp(), port=web_port)

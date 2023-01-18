@@ -167,7 +167,7 @@ function handleTraffic(color, srcPoint, hqPoint) {
         .each('end', function() {
             d3.select(this)
                 .transition()
-                .duration(1000)
+                .duration(500)
                 // Circle radius destination animation
                 .attr('r', 75)
                 .style('opacity', 0)
@@ -271,13 +271,7 @@ function redrawCountIP(hashID, id, countList, codeDict) {
         td1.appendChild(valueNode);
         td2.appendChild(img);
 
-        var alink = document.createElement('a');
-        alink.setAttribute("href","#");
-        alink.setAttribute("class","showInfo");
-        alink.style.color = "white";
-        alink.appendChild(keyNode);
-
-        td3.appendChild(alink);
+        td3.appendChild(keyNode);
         tr.appendChild(td1);
         tr.appendChild(td2);
         tr.appendChild(td3);
@@ -341,31 +335,49 @@ function handleLegend(msg) {
     prependAttackRow('attack-tracking', attackList);
 }
 
+function handleStats(msg) {
+    const last = ["last_1m", "last_1h", "last_24h"]
+    last.forEach(function(i) {
+        document.getElementById(i).innerHTML = msg[i];
+    });
+};
 
 // WEBSOCKET STUFF
 
-webSock.onmessage = function (e) {
-    console.log("Got a websocket message...");
-    try {
-        var msg = JSON.parse(e.data);
-        console.log(msg);
-        switch(msg.type) {
-        case "Traffic":
-            console.log("Traffic!");
-            var srcLatLng = new L.LatLng(msg.src_lat, msg.src_long);
-            var dstLatLng = new L.LatLng(msg.dst_lat, msg.dst_long);
-            var dstPoint = map.latLngToLayerPoint(dstLatLng);
-            var srcPoint = map.latLngToLayerPoint(srcLatLng);
-            console.log('');
+const messageHandlers = {
+    Traffic: (msg) => {
+        var srcLatLng = new L.LatLng(msg.src_lat, msg.src_long);
+        var dstLatLng = new L.LatLng(msg.dst_lat, msg.dst_long);
+        var dstPoint = map.latLngToLayerPoint(dstLatLng);
+        var srcPoint = map.latLngToLayerPoint(srcLatLng);
+        requestAnimationFrame(() => {
             addCircle(msg.color, srcLatLng);
             handleParticle(msg.color, srcPoint);
             handleTraffic(msg.color, srcPoint, dstPoint, srcLatLng);
             addCircle('#E20074', dstLatLng);
             handleLegend(msg);
-            break;
-        // Add support for other message types?
+        });
+    },
+    Stats: (msg) => {
+        requestAnimationFrame(() => {
+            handleStats(msg);
+        });
+    },
+};
+
+let lastCall;
+webSock.onmessage = function (e) {
+    try {
+        var msg = JSON.parse(e.data);
+        // console.log(msg)
+        if (lastCall && (performance.now() - lastCall) < 50) {
+            return;
         }
+        lastCall = performance.now();
+        let handler = messageHandlers[msg.type];
+        if(handler) handler(msg);
     } catch(err) {
         console.log(err)
     }
 };
+

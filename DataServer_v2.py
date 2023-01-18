@@ -5,11 +5,13 @@ import datetime
 import time
 
 # Within T-Pot: es = Elasticsearch('http://elasticsearch:9200') and redis_ip = 'map_redis'
-#es = Elasticsearch('http://127.0.0.1:64298')
-#redis_ip = '127.0.0.1'
+# es = Elasticsearch('http://127.0.0.1:64298')
+# redis_ip = '127.0.0.1'
 es = Elasticsearch('http://elasticsearch:9200')
 redis_ip = 'map_redis'
 redis_instance = None
+redis_channel = 'attack-map-production'
+version = 'Data Server 1.1.0'
 
 event_count = 1
 ips_tracked = {}
@@ -45,13 +47,327 @@ def connect_redis(redis_ip):
     return r
 
 
+def push_honeypot_stats(honeypot_stats):
+    redis_instance = connect_redis(redis_ip)
+    tmp = json.dumps(honeypot_stats)
+    # print(tmp)
+    redis_instance.publish(redis_channel, tmp)
+
+
+def get_honeypot_stats(timedelta):
+    ES_query_stats = {
+        "bool": {
+            "must": [],
+            "filter": [
+                {
+                    "bool": {
+                        "should": [
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Adbhoney"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Ciscoasa"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "CitrixHoneypot"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "ConPot"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Cowrie"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Ddospot"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Dicompot"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Dionaea"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "ElasticPot"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Endlessh"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Glutton"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Hellpot"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Heralding"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Honeytrap"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Honeypots"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Log4pot"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Ipphoney"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Mailoney"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Medpot"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Redishoneypot"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Tanner"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Wordpot"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            }
+                        ],
+                        "minimum_should_match": 1
+                    }
+                },
+                {
+                    "range": {
+                        "@timestamp": {
+                            "format": "strict_date_optional_time",
+                            "gte": "now-" + timedelta,
+                            "lte": "now"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+    return ES_query_stats
+
+
 def get_honeypot_data():
     processed_data = []
+    last = {"1m", "1h", "24h"}
     mydelta = 10
     time_last_request = datetime.datetime.utcnow() - datetime.timedelta(seconds=mydelta)
     while True:
+        now=(datetime.datetime.utcnow())
+        # Get the honeypot stats every 10s (last 1m, 1h, 24h)
+        if now.second%10 == 0 and now.microsecond < 500000:
+            honeypot_stats = {}
+            for i in last:
+                try:
+                    es_honeypot_stats = es.search(index="logstash-*", aggs={}, size=0, track_total_hits=True, query=get_honeypot_stats(i))
+                    honeypot_stats.update({"last_"+i: es_honeypot_stats['hits']['total']['value']})
+                except Exception as e:
+                    print(e)
+            honeypot_stats.update({"type": "Stats"})
+            push_honeypot_stats(honeypot_stats)
+
+        # Get the last 100 new honeypot events every 0.5s
         mylast = str(time_last_request).split(" ")
         mynow = str(datetime.datetime.utcnow() - datetime.timedelta(seconds=mydelta)).split(" ")
+
         ES_query = {
             "bool": {
                 "must": [
@@ -73,6 +389,7 @@ def get_honeypot_data():
                 ]
             }
         }
+
         res = es.search(index="logstash-*", size=100, query=ES_query)
         hits = res['hits']
         if len(hits['hits']) != 0:
@@ -196,10 +513,11 @@ def push(alerts):
         json_data["ips_tracked"] = ips_tracked
         event_count += 1
         tmp = json.dumps(json_data)
-        redis_instance.publish('attack-map-production', tmp)
+        redis_instance.publish(redis_channel, tmp)
 
 
 if __name__ == '__main__':
+    print(version)
     try:
         while True:
             try:
