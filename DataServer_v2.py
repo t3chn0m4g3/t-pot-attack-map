@@ -11,7 +11,7 @@ es = Elasticsearch('http://elasticsearch:9200')
 redis_ip = 'map_redis'
 redis_instance = None
 redis_channel = 'attack-map-production'
-version = 'Data Server 1.1.1'
+version = 'Data Server 1.1.2'
 
 event_count = 1
 ips_tracked = {}
@@ -296,6 +296,18 @@ def get_honeypot_stats(timedelta):
                                         {
                                             "match_phrase": {
                                                 "type.keyword": "Redishoneypot"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Sentrypeer"
                                             }
                                         }
                                     ],
