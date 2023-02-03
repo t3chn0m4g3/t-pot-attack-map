@@ -11,7 +11,7 @@ es = Elasticsearch('http://elasticsearch:9200')
 redis_ip = 'map_redis'
 redis_instance = None
 redis_channel = 'attack-map-production'
-version = 'Data Server 1.1.0'
+version = 'Data Server 1.1.1'
 
 event_count = 1
 ips_tracked = {}

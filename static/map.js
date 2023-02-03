@@ -16,6 +16,14 @@ var map = L.mapbox.map('map')
 // add full screen option
 L.control.fullscreen().addTo(map);
 
+// attribution top right
+/*var attributionControl = L.control.attribution({
+  position: 'topright',
+  prefix: '&copy; <a href="https://www.mapbox.com/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+}).addTo(map);*/
+
+
+
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
 .attr("class", "leaflet-zoom-animated")
@@ -216,7 +224,7 @@ function prependAttackRow(id, args) {
     for (var i = 0; i < count; i++) {
         var td = document.createElement('td');
         if (args[i] === args[2]) {
-        var path = 'flags/' + args[i] + '.png';
+        var path = 'flags/' + args[i] + '.svg';
         var img = document.createElement('img');
         img.src = path;
         td.appendChild(img);
@@ -265,7 +273,7 @@ function redrawCountIP(hashID, id, countList, codeDict) {
         value = sortedItems[i][1];
         var keyNode = document.createTextNode(key);
         var valueNode = document.createTextNode(value);
-        var path = 'flags/' + codeDict[key] + '.png';
+        var path = 'flags/' + codeDict[key] + '.svg';
         var img = document.createElement('img');
         img.src = path;
         td1.appendChild(valueNode);
@@ -305,7 +313,7 @@ function redrawCountIP2(hashID, id, countList, codeDict) {
         value = sortedItems[i][1];
         var keyNode = document.createTextNode(key);
         var valueNode = document.createTextNode(value);
-        var path = 'flags/' + codeDict[key] + '.png';
+        var path = 'flags/' + codeDict[key] + '.svg';
         var img = document.createElement('img');
         img.src = path;
         td1.appendChild(valueNode);
@@ -350,34 +358,21 @@ const messageHandlers = {
         var dstLatLng = new L.LatLng(msg.dst_lat, msg.dst_long);
         var dstPoint = map.latLngToLayerPoint(dstLatLng);
         var srcPoint = map.latLngToLayerPoint(srcLatLng);
-        requestAnimationFrame(() => {
-            addCircle(msg.color, srcLatLng);
-            handleParticle(msg.color, srcPoint);
-            handleTraffic(msg.color, srcPoint, dstPoint, srcLatLng);
-            addCircle('#E20074', dstLatLng);
-            handleLegend(msg);
-        });
+        addCircle(msg.color, srcLatLng);
+        handleParticle(msg.color, srcPoint);
+        handleTraffic(msg.color, srcPoint, dstPoint, srcLatLng);
+        addCircle('#E20074', dstLatLng);
+        handleLegend(msg);
     },
     Stats: (msg) => {
-        requestAnimationFrame(() => {
-            handleStats(msg);
-        });
+        handleStats(msg);
     },
 };
 
-let lastCall;
 webSock.onmessage = function (e) {
-    try {
-        var msg = JSON.parse(e.data);
-        // console.log(msg)
-        if (lastCall && (performance.now() - lastCall) < 50) {
-            return;
-        }
-        lastCall = performance.now();
-        let handler = messageHandlers[msg.type];
-        if(handler) handler(msg);
-    } catch(err) {
-        console.log(err)
-    }
+    var msg = JSON.parse(e.data);
+    // console.log(msg)
+    let handler = messageHandlers[msg.type];
+    if(handler) handler(msg);
 };
 

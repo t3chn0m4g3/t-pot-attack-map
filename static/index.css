@@ -20,8 +20,16 @@
     /* The Leaflet zoom buttons position */
     .leaflet-control-container {
         background:black;
-        position: absolute;
+        position: relative;
         top: 20px;
+    }
+    .leaflet-control-attribution {
+        position: relative;
+        top: 0px;
+        right: 0px;
+        opacity:0.9;
+        color: white !important;
+        background: black !important;
     }
     .circle {
         height:18px;
@@ -102,7 +110,7 @@
         height:27%;
         width:100%;
         position:absolute;
-        bottom:0%;
+        bottom:0.0%;
         background:black;
         opacity:0.6;
     }

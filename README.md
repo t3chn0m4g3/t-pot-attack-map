@@ -12,3 +12,5 @@ This geoip attack map visualizer was forked and adjusted to display T-Pot Honeyp
 The original attack map was created by [Matthew Clark May](https://github.com/MatthewClarkMay/geoip-attack-map).<br>
 First T-Pot based fork was released by [Eddie4](https://github.com/eddie4/geoip-attack-map).
 
+### Licenses
+[Bootstrap](https://getbootstrap.com/docs/4.0/about/license/), [D3](https://github.com/d3/d3/blob/main/LICENSE), [Flagpack](https://github.com/Yummygum/flagpack-core/blob/main/LICENSE), [JQeury](https://jquery.org/license/), [Leaflet](https://github.com/Leaflet/Leaflet/blob/main/LICENSE). 
