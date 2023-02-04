@@ -11,7 +11,7 @@ es = Elasticsearch('http://elasticsearch:9200')
 redis_ip = 'map_redis'
 redis_instance = None
 redis_channel = 'attack-map-production'
-version = 'Data Server 1.1.2'
+version = 'Data Server 1.2.0'
 
 event_count = 1
 ips_tracked = {}
@@ -36,7 +36,7 @@ service_rgb = {
     'SMB': '#bf00ff',
     'MEDICAL': '#ff00ff',
     'RDP': '#ff0060',
-    'SIP': '#ff0000',
+    'SIP': '#ffccff',
     'ADB': '#ffcccc',
     'OTHER': '#ffffff'
 }

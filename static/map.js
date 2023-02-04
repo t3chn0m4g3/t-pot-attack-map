@@ -200,22 +200,56 @@ function handleTraffic(color, srcPoint, hqPoint) {
 
 var circles = new L.LayerGroup();
 map.addLayer(circles);
+var markers = new L.LayerGroup();
+map.addLayer(markers);
 
+var circlesObject = {};
 function addCircle(color, srcLatLng) {
     circleCount = circles.getLayers().length;
     circleArray = circles.getLayers();
 
-    // Only allow 50 circles to be on the map at a time
+    // Only allow 5000 circles to be on the map at a time
     if (circleCount >= 5000) {
         circles.removeLayer(circleArray[0]);
+        circlesObject = {};
     }
 
-    L.circle(srcLatLng, 50000, {
-        color: color,
-        fillColor: color,
-        fillOpacity: 0.2,
+    var key = srcLatLng.lat + "," + srcLatLng.lng;
+    // Only draw circle if its coordinates are not already present in circlesObject
+    if (!circlesObject[key]) {
+        circlesObject[key] = L.circle(srcLatLng, 50000, {
+            color: color,
+            fillColor: color,
+            fillOpacity: 0.2,
         }).addTo(circles);
     }
+}
+
+var markersObject = {};
+function addMarker(dstLatLng) {
+    markerCount = markers.getLayers().length;
+    markerArray = markers.getLayers();
+
+    // Only allow 50 markers to be on the map at a time
+    if (markerCount >= 50) {
+        markers.removeLayer(markerArray[0]);
+        markersObject = {};
+    }
+
+    var key = dstLatLng.lat + "," + dstLatLng.lng;
+    // Only draw marker if its coordinates are not already present in markersObject
+    if (!markersObject[key]) {
+        markersObject[key] = L.marker(dstLatLng, {
+            icon: L.icon({
+                // svg color #E20074
+                iconUrl: 'static/images/marker.svg',
+                iconSize: [48, 48],
+                iconAnchor: [24, 48],
+                popupAnchor: [0, 0]
+            }),
+        }).addTo(markers);
+    }
+}
 
 function prependAttackRow(id, args) {
     var tr = document.createElement('tr');
@@ -361,7 +395,7 @@ const messageHandlers = {
         addCircle(msg.color, srcLatLng);
         handleParticle(msg.color, srcPoint);
         handleTraffic(msg.color, srcPoint, dstPoint, srcLatLng);
-        addCircle('#E20074', dstLatLng);
+        addMarker(dstLatLng);
         handleLegend(msg);
     },
     Stats: (msg) => {

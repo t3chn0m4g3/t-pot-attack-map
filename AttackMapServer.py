@@ -18,7 +18,7 @@ import logging
 # web_port = 1234
 redis_url = 'redis://map_redis:6379'
 web_port = 64299
-version = 'Attack Map Server 1.1.2'
+version = 'Attack Map Server 1.2.0'
 
 
 # Color Codes for Attack Map
@@ -36,7 +36,7 @@ service_rgb = {
     'SMB': '#bf00ff',
     'MEDICAL': '#ff00ff',
     'RDP': '#ff0060',
-    'SIP': '#ff0000',
+    'SIP': '#ffccff',
     'ADB': '#ffcccc',
     'OTHER': '#ffffff'
 }
