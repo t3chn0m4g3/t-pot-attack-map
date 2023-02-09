@@ -17,6 +17,7 @@
     .leaflet-container {
         background:black;
     }
+
     /* The Leaflet zoom buttons position */
     .leaflet-control-container {
         background:black;
@@ -24,11 +25,12 @@
         top: 20px;
     }
     .leaflet-control-attribution {
+        font-size: 14px;
         position: relative;
         top: 0px;
         right: 0px;
-        opacity:0.9;
-        color: white !important;
+        opacity:0.4;
+        color: grey !important;
         background: black !important;
     }
     .circle {
@@ -36,6 +38,7 @@
         width:18px;
         border-radius:50%;
         margin:0 auto;
+        z-index:999;
     }
     #informIP {
         display:none;
@@ -73,6 +76,7 @@
         background-color: rgba(0, 0, 0, 0.6);
         color: white;
         position: relative;
+        z-index:999;
     }
     /* Some CSS will always be overwritten, avoiding it with all: initial; */
     .myStatsHeader {
@@ -113,6 +117,7 @@
         bottom:0.0%;
         background:black;
         opacity:0.6;
+        z-index:999;
     }
     .row {
         height:100%;

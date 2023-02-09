@@ -5,13 +5,13 @@ import datetime
 import time
 
 # Within T-Pot: es = Elasticsearch('http://elasticsearch:9200') and redis_ip = 'map_redis'
-# es = Elasticsearch('http://127.0.0.1:64298')
-# redis_ip = '127.0.0.1'
-es = Elasticsearch('http://elasticsearch:9200')
-redis_ip = 'map_redis'
+es = Elasticsearch('http://127.0.0.1:64298')
+redis_ip = '127.0.0.1'
+# es = Elasticsearch('http://elasticsearch:9200')
+# redis_ip = 'map_redis'
 redis_instance = None
 redis_channel = 'attack-map-production'
-version = 'Data Server 1.2.0'
+version = 'Data Server 2.0.0'
 
 event_count = 1
 ips_tracked = {}

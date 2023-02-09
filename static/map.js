@@ -3,26 +3,26 @@
 // For use within T-Pot:
 //   - Access AttackMap via T-Pot's WebUI (https://<your T-Pot IP>:64297/map/)
 //   - For Proxy_Pass to work we need to use wss:// instead of ws://
-const WS_HOST = 'wss://'+window.location.host+'/websocket'
+const WS_HOST = 'ws://'+window.location.host+'/websocket'
 var webSock = new WebSocket(WS_HOST);
 
-// link map
-L.mapbox.accessToken = 'pk.eyJ1IjoiZWRkaWU0IiwiYSI6ImNqNm5sa2lvbTBjYWQyeG50Mnc0dnBzN2gifQ.tYmx_1LwtL3yHsLbC6CT3g';
+var base = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '<a href="https://www.openstreetmap.org/copyright">&copy OpenStreetMap</a> <a href="https://carto.com/attributions">&copy CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+});
 
-var map = L.mapbox.map('map')
-.setView([0, -4.932], 3)
-.addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v10'));
-
-// add full screen option
-L.control.fullscreen().addTo(map);
-
-// attribution top right
-/*var attributionControl = L.control.attribution({
-  position: 'topright',
-  prefix: '&copy; <a href="https://www.mapbox.com/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
-}).addTo(map);*/
-
-
+var map = L.map('map', {
+    layers: [base],
+    tap: false, // ref https://github.com/Leaflet/Leaflet/issues/7255
+    center: new L.LatLng(0, 0),
+    zoom: 3,
+    fullscreenControl: true,
+    fullscreenControlOptions: {
+        title:"Fullscreen Mode",
+        titleCancel:"Exit Fullscreen Mode"
+    }
+});
 
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
