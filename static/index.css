@@ -17,7 +17,6 @@
     .leaflet-container {
         background:black;
     }
-
     /* The Leaflet zoom buttons position */
     .leaflet-control-container {
         background:black;
@@ -32,6 +31,18 @@
         opacity:0.4;
         color: grey !important;
         background: black !important;
+    }
+    .leaflet-popup-content-wrapper {
+        background-color: #151515;
+        opacity: 0.9;
+    }
+    .leaflet-popup-tip-container .leaflet-popup-tip {
+        background-color: #151515;
+        opacity: 0.9;
+    }
+    .leaflet-popup-content {
+        font-size: 14px;
+        color: #E20074;
     }
     .circle {
         height:18px;

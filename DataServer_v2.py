@@ -429,6 +429,9 @@ def process_data(hit):
     alert["dst_lat"] = hit["_source"]["geoip_ext"]["latitude"]
     alert["dst_long"] = hit["_source"]["geoip_ext"]["longitude"]
     alert["dst_ip"] = hit["_source"]["geoip_ext"]["ip"]
+    alert["dst_iso_code"] = hit["_source"]["geoip_ext"].get("country_code2", "")
+    alert["dst_country_name"] = hit["_source"]["geoip_ext"].get("country_name", "")
+    alert["tpot_hostname"] = hit["_source"]["t-pot_hostname"]
     alert["event_time"] = str(hit["_source"]["@timestamp"][0:10]) + " " + str(hit["_source"]["@timestamp"][11:19])
     alert["iso_code"] = hit["_source"]["geoip"]["country_code2"]
     alert["latitude"] = hit["_source"]["geoip"]["latitude"]
@@ -440,6 +443,10 @@ def process_data(hit):
         alert["src_port"] = hit["_source"]["src_port"]
     except:
         alert["src_port"] = 0
+    try:
+        alert["ip_rep"] = hit["_source"]["ip_rep"]
+    except:
+        alert["ip_rep"] = "reputation unknown"
     if not alert["src_ip"] == "":
         alert["color"] = service_rgb[alert["protocol"].upper()]
         return alert
@@ -506,6 +513,7 @@ def push(alerts):
             "event_time": alert["event_time"],
             "src_lat": alert["latitude"],
             "src_ip": alert["src_ip"],
+            "ip_rep": alert["ip_rep"].title(),
             "continents_tracked": continent_tracked,
             "type": "Traffic",
             "country_to_code": countries_to_code,
@@ -520,7 +528,10 @@ def push(alerts):
             "unknowns": {
             },
             "dst_port": alert["dst_port"],
-            "dst_ip": alert["dst_ip"]
+            "dst_ip": alert["dst_ip"],
+            "dst_iso_code": alert["dst_iso_code"],
+            "dst_country_name": alert["dst_country_name"],
+            "tpot_hostname": alert["tpot_hostname"]
         }
         json_data["ips_tracked"] = ips_tracked
         event_count += 1

@@ -24,6 +24,8 @@ var map = L.map('map', {
     }
 });
 
+// map.attributionControl.setPrefix('<a href="https://leafletjs.com"> Leaflet');
+
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
 .attr("class", "leaflet-zoom-animated")
@@ -120,20 +122,18 @@ function handleParticle(color, srcPoint) {
     svg.append('circle')
         .attr('cx', x)
         .attr('cy', y)
-        .attr('r', 1e-6)
+        .attr('r', 0)
         .style('fill', 'none')
-        //.style('stroke', d3.hsl((i = (i + 1) % 360), 1, .5))
         .style('stroke', color)
         .style('stroke-opacity', 1)
+        .style('stroke-width', 3)
         .transition()
-        .duration(2000)
-        .ease(Math.sqrt)
+        .duration(700)
+        .ease(d3.easeCircleIn)
         // Circle radius source animation
-        .attr('r', 75)
-        .style('stroke-opacity', 1e-6)
+        .attr('r', 50)
+        .style('stroke-opacity', 0)
         .remove();
-
-    //d3.event.preventDefault();
 }
 
 function handleTraffic(color, srcPoint, hqPoint) {
@@ -145,8 +145,8 @@ function handleTraffic(color, srcPoint, hqPoint) {
     var bend = bendArray[Math.floor(Math.random() * bendArray.length)];
 
     var lineData = [srcPoint, calcMidpoint(fromX, fromY, toX, toY, bend), hqPoint]
-    var lineFunction = d3.svg.line()
-        .interpolate("basis")
+    var lineFunction = d3.line()
+        .curve(d3.curveBasis)
         .x(function(d) {return d.x;})
         .y(function(d) {return d.y;});
 
@@ -157,11 +157,6 @@ function handleTraffic(color, srcPoint, hqPoint) {
             .attr('stroke-width', 2)
             .attr('fill', 'none');
 
-    if (translateAlong(lineGraph.node()) === 'ERROR') {
-        console.log('translateAlong ERROR')
-        return;
-    }
-
     var circleRadius = 6
 
     // Circle follows the line
@@ -170,15 +165,19 @@ function handleTraffic(color, srcPoint, hqPoint) {
         .attr('fill', color)
         .transition()
         .duration(700)
-        .ease('ease-in')
+        .ease(d3.easeCircleIn)
         .attrTween('transform', translateAlong(lineGraph.node()))
-        .each('end', function() {
+        .on('end', function() {
             d3.select(this)
+                .attr('fill', 'none')
+                .attr('stroke', color)
+                .attr('stroke-width', 3)
                 .transition()
-                .duration(500)
+                .duration(700)
+                .ease(d3.easeCircleIn)
                 // Circle radius destination animation
-                .attr('r', 75)
-                .style('opacity', 0)
+                .attr('r', 50)
+                .style('stroke-opacity', 0)
                 .remove();
     });
 
@@ -187,16 +186,17 @@ function handleTraffic(color, srcPoint, hqPoint) {
         .attr('stroke-dashoffset', length)
         .transition()
         .duration(700)
-        .ease('ease-in')
+        .ease(d3.easeCircleIn)
         .attr('stroke-dashoffset', 0)
-        .each('end', function() {
+        .on('end', function() {
             d3.select(this)
                 .transition()
-                .duration(100)
+                .duration(350)
                 .style('opacity', 0)
                 .remove();
     });
 }
+
 
 var circles = new L.LayerGroup();
 map.addLayer(circles);
@@ -204,7 +204,7 @@ var markers = new L.LayerGroup();
 map.addLayer(markers);
 
 var circlesObject = {};
-function addCircle(color, srcLatLng) {
+function addCircle(country, iso_code, src_ip, ip_rep, color, srcLatLng) {
     circleCount = circles.getLayers().length;
     circleArray = circles.getLayers();
 
@@ -220,13 +220,18 @@ function addCircle(color, srcLatLng) {
         circlesObject[key] = L.circle(srcLatLng, 50000, {
             color: color,
             fillColor: color,
-            fillOpacity: 0.2,
-        }).addTo(circles);
+            fillOpacity: 0.2
+        }).bindPopup(
+            "<h4><b><u>Source Info</u></b></h4>" +
+            "<img src='flags/" + iso_code + ".svg' width='26' height='18'>" + "<b> " + country + "<br>" +
+            "<b>" + src_ip + "<br>" +
+            "<b>" + ip_rep
+        ).addTo(circles);
     }
 }
 
 var markersObject = {};
-function addMarker(dstLatLng) {
+function addMarker(dst_country_name, dst_iso_code, dst_ip, tpot_hostname, dstLatLng) {
     markerCount = markers.getLayers().length;
     markerArray = markers.getLayers();
 
@@ -245,9 +250,14 @@ function addMarker(dstLatLng) {
                 iconUrl: 'static/images/marker.svg',
                 iconSize: [48, 48],
                 iconAnchor: [24, 48],
-                popupAnchor: [0, 0]
+                popupAnchor: [0, -48]
             }),
-        }).addTo(markers);
+        }).bindPopup(
+            "<h4><b><u>T-Pot Info</u></b></h4>" +
+            "<img src='flags/" + dst_iso_code + ".svg' width='26' height='18'>" + "<b> " + dst_country_name + "<br>" +
+            "<b>" + dst_ip + "<br>" +
+            "<b>" + tpot_hostname
+        ).addTo(markers);
     }
 }
 
@@ -312,7 +322,6 @@ function redrawCountIP(hashID, id, countList, codeDict) {
         img.src = path;
         td1.appendChild(valueNode);
         td2.appendChild(img);
-
         td3.appendChild(keyNode);
         tr.appendChild(td1);
         tr.appendChild(td2);
@@ -352,7 +361,6 @@ function redrawCountIP2(hashID, id, countList, codeDict) {
         img.src = path;
         td1.appendChild(valueNode);
         td2.appendChild(img);
-
         td3.appendChild(keyNode);
         tr.appendChild(td1);
         tr.appendChild(td2);
@@ -392,16 +400,22 @@ const messageHandlers = {
         var dstLatLng = new L.LatLng(msg.dst_lat, msg.dst_long);
         var dstPoint = map.latLngToLayerPoint(dstLatLng);
         var srcPoint = map.latLngToLayerPoint(srcLatLng);
-        addCircle(msg.color, srcLatLng);
-        handleParticle(msg.color, srcPoint);
-        handleTraffic(msg.color, srcPoint, dstPoint, srcLatLng);
-        addMarker(dstLatLng);
-        handleLegend(msg);
+
+        Promise.all([
+            addCircle(msg.country, msg.iso_code, msg.src_ip, msg.ip_rep, msg.color, srcLatLng),
+            addMarker(msg.dst_country_name, msg.dst_iso_code, msg.dst_ip, msg.tpot_hostname, dstLatLng),
+            handleLegend(msg),
+            handleParticle(msg.color, srcPoint),
+            handleTraffic(msg.color, srcPoint, dstPoint, srcLatLng)
+        ]).then(() => {
+            // All operations have completed
+        });
     },
     Stats: (msg) => {
         handleStats(msg);
     },
 };
+
 
 webSock.onmessage = function (e) {
     var msg = JSON.parse(e.data);
@@ -409,4 +423,3 @@ webSock.onmessage = function (e) {
     let handler = messageHandlers[msg.type];
     if(handler) handler(msg);
 };
-
