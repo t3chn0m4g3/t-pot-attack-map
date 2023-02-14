@@ -3,7 +3,7 @@
 // For use within T-Pot:
 //   - Access AttackMap via T-Pot's WebUI (https://<your T-Pot IP>:64297/map/)
 //   - For Proxy_Pass to work we need to use wss:// instead of ws://
-const WS_HOST = 'ws://'+window.location.host+'/websocket'
+const WS_HOST = 'wss://'+window.location.host+'/websocket'
 var webSock = new WebSocket(WS_HOST);
 
 var base = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -222,7 +222,7 @@ function addCircle(country, iso_code, src_ip, ip_rep, color, srcLatLng) {
             fillColor: color,
             fillOpacity: 0.2
         }).bindPopup(
-            "<h4><b><u>Source Info</u></b></h4>" +
+//            "<h4><b><u>Source Info</u></b></h4>" +
             "<img src='flags/" + iso_code + ".svg' width='26' height='18'>" + "<b> " + country + "<br>" +
             "<b>" + src_ip + "<br>" +
             "<b>" + ip_rep
@@ -253,7 +253,7 @@ function addMarker(dst_country_name, dst_iso_code, dst_ip, tpot_hostname, dstLat
                 popupAnchor: [0, -48]
             }),
         }).bindPopup(
-            "<h4><b><u>T-Pot Info</u></b></h4>" +
+//            "<h4><b><u>T-Pot Info</u></b></h4>" +
             "<img src='flags/" + dst_iso_code + ".svg' width='26' height='18'>" + "<b> " + dst_country_name + "<br>" +
             "<b>" + dst_ip + "<br>" +
             "<b>" + tpot_hostname
