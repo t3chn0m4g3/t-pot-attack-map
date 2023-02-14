@@ -448,7 +448,10 @@ def process_data(hit):
     except:
         alert["ip_rep"] = "reputation unknown"
     if not alert["src_ip"] == "":
-        alert["color"] = service_rgb[alert["protocol"].upper()]
+        try:
+            alert["color"] = service_rgb[alert["protocol"].upper()]
+        except:
+            alert["color"] = service_rgb["OTHER"]
         return alert
     else:
         print("SRC IP EMPTY")
@@ -488,7 +491,7 @@ def port_to_type(port):
         if port == 5555:
             return "ADB"
         else:
-            return "OTHER"
+            return str(port)
     except:
         return "OTHER"
 
