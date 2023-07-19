@@ -1,8 +1,11 @@
-from elasticsearch import Elasticsearch
-import json
-import redis
 import datetime
+import json
 import time
+import os
+import pytz
+import redis
+from elasticsearch import Elasticsearch, exceptions as es_exceptions
+from tzlocal import get_localzone
 
 # Within T-Pot: es = Elasticsearch('http://elasticsearch:9200') and redis_ip = 'map_redis'
 # es = Elasticsearch('http://127.0.0.1:64298')
@@ -11,7 +14,9 @@ es = Elasticsearch('http://elasticsearch:9200')
 redis_ip = 'map_redis'
 redis_instance = None
 redis_channel = 'attack-map-production'
-version = 'Data Server 2.0.0'
+version = 'Data Server 2.1.0'
+local_tz = get_localzone()
+output_text = os.getenv("TPOT_ATTACKMAP_TEXT")
 
 event_count = 1
 ips_tracked = {}
@@ -357,7 +362,7 @@ def get_honeypot_stats(timedelta):
     return ES_query_stats
 
 
-def get_honeypot_data():
+def update_honeypot_data():
     processed_data = []
     last = {"1m", "1h", "24h"}
     mydelta = 10
@@ -379,7 +384,6 @@ def get_honeypot_data():
         # Get the last 100 new honeypot events every 0.5s
         mylast = str(time_last_request).split(" ")
         mynow = str(datetime.datetime.utcnow() - datetime.timedelta(seconds=mydelta)).split(" ")
-
         ES_query = {
             "bool": {
                 "must": [
@@ -498,7 +502,9 @@ def port_to_type(port):
 
 def push(alerts):
     global ips_tracked, continent_tracked, countries_tracked, ip_to_code, ports, event_count, countries_to_code
+
     redis_instance = connect_redis(redis_ip)
+
     for alert in alerts:
         ips_tracked[alert["src_ip"]] = ips_tracked.get(alert["src_ip"], 1) + 1
         continent_tracked[alert["continent_code"]] = ips_tracked.get(alert["continent_code"], 1) + 1
@@ -506,6 +512,29 @@ def push(alerts):
         ip_to_code[alert["src_ip"]] = alert["iso_code"]
         countries_to_code[alert["country"]] = alert["country_code"]
         ports[alert["dst_port"]] = ports.get(alert["dst_port"], 0) + 1
+
+        if output_text == "ENABLED":
+            # Convert UTC to local time
+            my_time = datetime.datetime.strptime(alert["event_time"], "%Y-%m-%d %H:%M:%S")
+            my_time = my_time.replace(tzinfo=pytz.UTC)  # Assuming event_time is in UTC
+            local_event_time = my_time.astimezone(local_tz)
+            local_event_time = local_event_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            # Build the table data
+            table_data = [
+                [local_event_time, alert["country"], alert["src_ip"], alert["ip_rep"].title(),
+                 alert["protocol"], alert["honeypot"], alert["tpot_hostname"]]
+            ]
+
+            # Define the minimum width for each column
+            min_widths = [19, 20, 15, 18, 10, 14, 14]
+
+            # Format and print each line with aligned columns
+            for row in table_data:
+                formatted_line = " | ".join(
+                    "{:<{width}}".format(str(value), width=min_widths[i]) for i, value in enumerate(row))
+                print(formatted_line)
+
         json_data = {
             "protocol": alert["protocol"],
             "color": alert["color"],
@@ -547,10 +576,13 @@ if __name__ == '__main__':
     try:
         while True:
             try:
-                get_honeypot_data()
-            except:
-                print("Waiting for Elasticsearch ...")
-                time.sleep(5)
+                update_honeypot_data()
+            except Exception as e:
+                if "6379" in str(e):
+                    print("[ ] Waiting for Redis ...")
+                if "urllib3.connection" in str(e):
+                    print("[ ] Waiting for Elasticsearch ...")
+                    time.sleep(5)
 
     except KeyboardInterrupt:
         print('\nSHUTTING DOWN')

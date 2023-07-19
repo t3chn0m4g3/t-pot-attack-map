@@ -16,6 +16,10 @@
         <!-- <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script> -->
         <script src="static/jquery-3.6.3.min.js" defer integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
 
+        <!--Setup Luxon-->
+        <!-- <script src="https://moment.github.io/luxon/global/luxon.min.js" integrity="sha384-DwavIJUME7NNaTw+CuxB85mS1L5A6XkHXHWnd1hmNIzSnX48mIjZ0Nc/tPQONPwe" crossorigin="anonymous"></script> -->
+        <script src="static/luxon.min.js" defer integrity="sha384-DwavIJUME7NNaTw+CuxB85mS1L5A6XkHXHWnd1hmNIzSnX48mIjZ0Nc/tPQONPwe" crossorigin="anonymous"></script>
+
         <!--Setup Bootstrap-->
         <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous"> -->
         <link href="static/bootstrap.min.css" rel="stylesheet" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous"/>
@@ -45,7 +49,7 @@
             <table>
                 <tbody>
                     <tr>
-                        <td class="myStatsHeader">T-Pot Honeypot Stats</td>
+                        <td class="myStatsHeader" id="honeypotStatsHeader">T-Pot Honeypot Stats</td>
                         <td class="myStatsHeader">Last 1m:</td>
                         <td class="myStatsValue" id="last_1m"> - </td>
                         <td class="myStatsHeader">Last 1h:</td>

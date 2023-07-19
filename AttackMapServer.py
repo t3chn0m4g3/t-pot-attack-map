@@ -6,19 +6,18 @@ Adjusted code for asyncio, aiohttp and aioredis by t3chn0m4g3
 """
 
 
-from aiohttp import web
 import asyncio
-import aioredis
 import json
-import logging
 
+import aioredis
+from aiohttp import web
 
 # Within T-Pot: redis_url = 'redis://map_redis:6379'
 # redis_url = 'redis://127.0.0.1:6379'
 # web_port = 1234
 redis_url = 'redis://map_redis:6379'
 web_port = 64299
-version = 'Attack Map Server 2.0.0'
+version = 'Attack Map Server 2.1.0'
 
 
 # Color Codes for Attack Map
@@ -43,34 +42,39 @@ service_rgb = {
 
 
 async def redis_subscriber(websockets):
-    # Create a Redis connection
-    redis = await aioredis.from_url(redis_url)
-    # Get the pubsub object for channel subscription
-    pubsub = redis.pubsub()
-    # Subscribe to a Redis channel
-    channel = "attack-map-production"
-    await pubsub.subscribe(channel)
-    print("Redis connection established.")
-    # Start a loop to listen for messages on the channel
-    async with redis.pubsub() as pubsub:
-        await pubsub.subscribe(channel)
-        while True:
-            try:
-                msg = await pubsub.get_message(ignore_subscribe_messages=True)
-                if msg is not None:
+    while True:
+        try:
+            # Create a Redis connection
+            redis = await aioredis.from_url(redis_url)
+            # Get the pubsub object for channel subscription
+            pubsub = redis.pubsub()
+            # Subscribe to a Redis channel
+            channel = "attack-map-production"
+            await pubsub.subscribe(channel)
+            print("[*] Redis connection established.")
+            # Start a loop to listen for messages on the channel
+            async with redis.pubsub() as pubsub:
+                await pubsub.subscribe(channel)
+                while True:
                     try:
-                        # Only take the data and forward as JSON to the connected websocket clients
-                        json_data = json.dumps(json.loads(msg['data']))
-                        # print(json_data)
-                        # Process all connected websockets in parallel
-                        await asyncio.gather(*[ws.send_str(json_data) for ws in websockets])
-                    except:
-                        print("Something went wrong while sending JSON data.")
-                else:
-                    await asyncio.sleep(0.1)
-            except asyncio.CancelledError:
-                print("Cancelled.")
-                break
+                        msg = await pubsub.get_message(ignore_subscribe_messages=True)
+                        if msg is not None:
+                            try:
+                                # Only take the data and forward as JSON to the connected websocket clients
+                                json_data = json.dumps(json.loads(msg['data']))
+                                # print(json_data)
+                                # Process all connected websockets in parallel
+                                await asyncio.gather(*[ws.send_str(json_data) for ws in websockets])
+                            except:
+                                print("Something went wrong while sending JSON data.")
+                        else:
+                            await asyncio.sleep(0.1)
+                    except asyncio.CancelledError:
+                        print("Cancelled.")
+                        break
+        except aioredis.RedisError as e:
+            print("[ ] Waiting for Redis ...")
+            await asyncio.sleep(5)
 
 
 async def my_websocket_handler(request):
@@ -80,17 +84,17 @@ async def my_websocket_handler(request):
     await ws.prepare(request)
     # Add the WebSocket to the list of websockets
     request.app['websockets'].append(ws)
-    print(f"New WebSocket connection opened. Clients active: {len(request.app['websockets'])}")
+    print(f"[*] New WebSocket connection opened. Clients active: {len(request.app['websockets'])}")
     # Start a loop to listen for messages
     async for msg in ws:
         if msg == aiohttp.WSMsgType.TEXT:
             # Send the message back to the client
             await ws.send_str(msg)
         elif msg == aiohttp.WSMsgType.ERROR:
-            print('WebSocket connection closed with exception %s' % ws.exception())
+            print('[ ] WebSocket connection closed with exception %s' % ws.exception())
     # Remove the WebSocket from the list of websockets
     request.app['websockets'].remove(ws)
-    print(f"Existing WebSocket connection closed. Clients active: {len(request.app['websockets'])}")
+    print(f"[ ] Existing WebSocket connection closed. Clients active: {len(request.app['websockets'])}")
     return ws
 
 

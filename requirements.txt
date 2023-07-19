@@ -1,4 +1,6 @@
 aiohttp
 aioredis
 elasticsearch
+pytz
 redis
+tzlocal

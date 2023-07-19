@@ -1,22 +1,23 @@
-// To access by a browser in another computer, use the external IP of machine running AttackMapServer
-// from the same computer(only), you can use the internal IP.
-// For use within T-Pot:
-//   - Access AttackMap via T-Pot's WebUI (https://<your T-Pot IP>:64297/map/)
-//   - For Proxy_Pass to work we need to use wss:// instead of ws://
-const WS_HOST = 'wss://'+window.location.host+'/websocket'
-var webSock = new WebSocket(WS_HOST);
-
 var base = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '<a href="https://www.openstreetmap.org/copyright">&copy OpenStreetMap</a> <a href="https://carto.com/attributions">&copy CARTO</a>',
+        detectRetina: true,
         subdomains: 'abcd',
-        maxZoom: 19
+        minZoom: 2,
+        maxZoom: 8,
+        tileSize: 256
 });
 
 var map = L.map('map', {
     layers: [base],
     tap: false, // ref https://github.com/Leaflet/Leaflet/issues/7255
     center: new L.LatLng(0, 0),
+    trackResize: true,
+    worldCopyJump: true,
+    minZoom: 2,
+    maxZoom: 8,
     zoom: 3,
+    zoomSnap: 0.1,
+    zoomDelta: 0.1,
     fullscreenControl: true,
     fullscreenControlOptions: {
         title:"Fullscreen Mode",
@@ -24,16 +25,11 @@ var map = L.map('map', {
     }
 });
 
-// map.attributionControl.setPrefix('<a href="https://leafletjs.com"> Leaflet');
-
 // Append <svg> to map
 var svg = d3.select(map.getPanes().overlayPane).append("svg")
 .attr("class", "leaflet-zoom-animated")
 .attr("width", window.innerWidth)
 .attr("height", window.innerHeight);
-
-// Append <g> to svg
-//var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
 function translateSVG() {
     var viewBoxLeft = document.querySelector("svg.leaflet-zoom-animated").viewBox.animVal.x;
@@ -191,7 +187,7 @@ function handleTraffic(color, srcPoint, hqPoint) {
         .on('end', function() {
             d3.select(this)
                 .transition()
-                .duration(350)
+                .duration(700)
                 .style('opacity', 0)
                 .remove();
     });
@@ -208,8 +204,8 @@ function addCircle(country, iso_code, src_ip, ip_rep, color, srcLatLng) {
     circleCount = circles.getLayers().length;
     circleArray = circles.getLayers();
 
-    // Only allow 5000 circles to be on the map at a time
-    if (circleCount >= 5000) {
+    // Only allow 100 circles to be on the map at a time
+    if (circleCount >= 100) {
         circles.removeLayer(circleArray[0]);
         circlesObject = {};
     }
@@ -370,19 +366,21 @@ function redrawCountIP2(hashID, id, countList, codeDict) {
 }
 
 function handleLegend(msg) {
-    var ipCountList = [msg.ips_tracked,
-               msg.iso_code];
-    var countryCountList = [msg.countries_tracked,
-                msg.iso_code];
-    var attackList = [msg.event_time,
-              msg.src_ip,
-              msg.iso_code,
-              msg.country,
-              msg.honeypot,
-              msg.protocol];
-    redrawCountIP('#ip-tracking','ip-tracking', ipCountList, msg.ip_to_code);
-    redrawCountIP2('#country-tracking', 'country-tracking', countryCountList, msg.country_to_code);
-    prependAttackRow('attack-tracking', attackList);
+  var eventTime = luxon.DateTime.fromFormat(msg.event_time, 'yyyy-MM-dd HH:mm:ss', { zone: 'utc' })
+    .setZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  var ipCountList = [msg.ips_tracked, msg.iso_code];
+  var countryCountList = [msg.countries_tracked, msg.iso_code];
+  var attackList = [
+    eventTime.toFormat('yyyy-MM-dd HH:mm:ss'),
+    msg.src_ip,
+    msg.iso_code,
+    msg.country,
+    msg.honeypot,
+    msg.protocol
+  ];
+  redrawCountIP('#ip-tracking', 'ip-tracking', ipCountList, msg.ip_to_code);
+  redrawCountIP2('#country-tracking', 'country-tracking', countryCountList, msg.country_to_code);
+  prependAttackRow('attack-tracking', attackList);
 }
 
 function handleStats(msg) {
@@ -395,31 +393,71 @@ function handleStats(msg) {
 // WEBSOCKET STUFF
 
 const messageHandlers = {
-    Traffic: (msg) => {
-        var srcLatLng = new L.LatLng(msg.src_lat, msg.src_long);
-        var dstLatLng = new L.LatLng(msg.dst_lat, msg.dst_long);
-        var dstPoint = map.latLngToLayerPoint(dstLatLng);
-        var srcPoint = map.latLngToLayerPoint(srcLatLng);
+  Traffic: (msg) => {
+    var srcLatLng = new L.LatLng(msg.src_lat, msg.src_long);
+    var dstLatLng = new L.LatLng(msg.dst_lat, msg.dst_long);
+    var dstPoint = map.latLngToLayerPoint(dstLatLng);
+    var srcPoint = map.latLngToLayerPoint(srcLatLng);
 
-        Promise.all([
-            addCircle(msg.country, msg.iso_code, msg.src_ip, msg.ip_rep, msg.color, srcLatLng),
-            addMarker(msg.dst_country_name, msg.dst_iso_code, msg.dst_ip, msg.tpot_hostname, dstLatLng),
-            handleLegend(msg),
-            handleParticle(msg.color, srcPoint),
-            handleTraffic(msg.color, srcPoint, dstPoint, srcLatLng)
-        ]).then(() => {
-            // All operations have completed
-        });
-    },
-    Stats: (msg) => {
-        handleStats(msg);
-    },
+    Promise.all([
+        addCircle(msg.country, msg.iso_code, msg.src_ip, msg.ip_rep, msg.color, srcLatLng),
+        addMarker(msg.dst_country_name, msg.dst_iso_code, msg.dst_ip, msg.tpot_hostname, dstLatLng),
+        handleLegend(msg),
+        handleParticle(msg.color, srcPoint),
+        handleTraffic(msg.color, srcPoint, dstPoint, srcLatLng)
+    ]).then(() => {
+        // All operations have completed
+    });
+  },
+  Stats: (msg) => {
+    handleStats(msg);
+  },
 };
 
+// For use within T-Pot:
+//   - Access AttackMap via T-Pot's WebUI (https://<your T-Pot IP>:64297/map/)
+//   - For Proxy_Pass to work we need to use wss:// instead of ws://
+function connectWebSocket() {
+  const WS_HOST = 'wss://'+window.location.host+'/websocket'
+  const webSock = new WebSocket(WS_HOST);
 
-webSock.onmessage = function (e) {
+  webSock.onopen = function () {
+    // Log connection success and display "T-Pot Honeypot Stats" title in green, so we know connection is established
+    var honeypotStatsHeader = document.getElementById("honeypotStatsHeader");
+    honeypotStatsHeader.style.color = "green";
+    honeypotStatsHeader.textContent = "T-Pot Honeypot Stats"
+    console.log('[*] WebSocket connection established.');
+  };
+
+  webSock.onclose = function (event) {
+     var reason = "Unknown error reason?";
+     if (event.code == 1000)     reason = "[ ] Endpoint terminating connection: Normal closure";
+     else if(event.code == 1001) reason = "[ ] Endpoint terminating connection: Endpoint is \"going away\"";
+     else if(event.code == 1002) reason = "[ ] Endpoint terminating connection: Protocol error";
+     else if(event.code == 1003) reason = "[ ] Endpoint terminating connection: Unkonwn data";
+     else if(event.code == 1004) reason = "[ ] Endpoint terminating connection: Reserved";
+     else if(event.code == 1005) reason = "[ ] Endpoint terminating connection: No status code";
+     else if(event.code == 1006) reason = "[ ] Endpoint terminating connection: Connection closed abnormally";
+     else if(event.code == 1007) reason = "[ ] Endpoint terminating connection: Message was not consistent with the type of the message";
+     else if(event.code == 1008) reason = "[ ] Endpoint terminating connection: Message \"violates policy\"";
+     else if(event.code == 1009) reason = "[ ] Endpoint terminating connection: Message is too big";
+     else if(event.code == 1010) reason = "[ ] Endpoint terminating connection: Client failed to negotiate ("+event.reason+")";
+     else if(event.code == 1011) reason = "[ ] Endpoint terminating connection: Server encountered an unexpected condition";
+     else if(event.code == 1015) reason = "[ ] Endpoint terminating connection: Connection closed due TLS handshake failure";
+     else reason = "[ ] Endpoint terminating connection; Unknown reason";
+     // Log error and display "T-Pot Honeypot Stats" title in red, so we know connection is interrupted
+     console.log(reason+'. Attempting to reconnect ...');
+     var honeypotStatsHeader = document.getElementById("honeypotStatsHeader");
+     honeypotStatsHeader.style.color = "red";
+     honeypotStatsHeader.textContent = "T-Pot Honeypot Stats"
+     setTimeout(connectWebSocket, 5000); // Wait 5 seconds and attempt to reconnect
+  };
+
+  webSock.onmessage = function (e) {
     var msg = JSON.parse(e.data);
-    // console.log(msg)
     let handler = messageHandlers[msg.type];
-    if(handler) handler(msg);
-};
+    if (handler) handler(msg);
+  };
+}
+
+connectWebSocket();
