@@ -14,7 +14,7 @@ es = Elasticsearch('http://elasticsearch:9200')
 redis_ip = 'map_redis'
 redis_instance = None
 redis_channel = 'attack-map-production'
-version = 'Data Server 2.2.0'
+version = 'Data Server 2.2.1'
 local_tz = get_localzone()
 output_text = os.getenv("TPOT_ATTACKMAP_TEXT")
 
@@ -73,6 +73,18 @@ def get_honeypot_stats(timedelta):
                                         {
                                             "match_phrase": {
                                                 "type.keyword": "Adbhoney"
+                                            }
+                                        }
+                                    ],
+                                    "minimum_should_match": 1
+                                }
+                            },
+                            {
+                                "bool": {
+                                    "should": [
+                                        {
+                                            "match_phrase": {
+                                                "type.keyword": "Beelzebub"
                                             }
                                         }
                                     ],
