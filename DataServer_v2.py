@@ -116,14 +116,13 @@ def update_honeypot_data():
             "bool": {
                 "must": [
                     {
-                        "terms": {
-                            "type": [
-                                "Adbhoney", "Beelzebub", "Ciscoasa", "CitrixHoneypot", "ConPot",
-                                "Cowrie", "Ddospot", "Dicompot", "Dionaea", "ElasticPot", 
-                                "Endlessh", "Galah", "Glutton", "Hellpot", "Heralding", "Honeypots", 
-                                "Honeytrap", "Ipphoney", "Log4pot", "Mailoney", "Medpot", 
-                                "Redishoneypot", "Sentrypeer", "Tanner", "Wordpot"
-                            ]
+                        "query_string": {
+                            "query": (
+                                "type:(Adbhoney OR Beelzebub OR Ciscoasa OR CitrixHoneypot OR ConPot OR Cowrie "
+                                "OR Ddospot OR Dicompot OR Dionaea OR ElasticPot OR Endlessh OR Galah OR Glutton "
+                                "OR Hellpot OR Heralding OR Honeypots OR Honeytrap OR Ipphoney OR Log4pot OR Mailoney "
+                                "OR Medpot OR Redishoneypot OR Sentrypeer OR Tanner OR Wordpot)"
+                            )
                         }
                     }
                 ],
