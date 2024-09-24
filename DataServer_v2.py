@@ -14,7 +14,7 @@ es = Elasticsearch('http://elasticsearch:9200')
 redis_ip = 'map_redis'
 redis_instance = None
 redis_channel = 'attack-map-production'
-version = 'Data Server 2.2.1'
+version = 'Data Server 2.2.2'
 local_tz = get_localzone()
 output_text = os.getenv("TPOT_ATTACKMAP_TEXT")
 
@@ -207,7 +207,7 @@ def port_to_type(port):
             return "EMAIL"
         if port == 53:
             return "DNS"
-        if port == 80 or port == 81 or port == 8080:
+        if port == 80 or port == 81 or port == 8080 or port == 8888:
             return "HTTP"
         if port == 161:
             return "SNMP"
