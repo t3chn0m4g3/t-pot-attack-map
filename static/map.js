@@ -375,6 +375,7 @@ function handleLegend(msg) {
     msg.src_ip,
     msg.iso_code,
     msg.country,
+    msg.tpot_hostname,
     msg.honeypot,
     msg.protocol
   ];
