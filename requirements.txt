@@ -1,5 +1,5 @@
 aiohttp
-elasticsearch
+elasticsearch==8.18.1
 pytz
 redis
 tzlocal
