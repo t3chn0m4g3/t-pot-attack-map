@@ -1288,7 +1288,8 @@ function connectWebSocket() {
   }
   
   isReconnecting = true;
-  const WS_HOST = 'ws://'+window.location.host+'/websocket'
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const WS_HOST = protocol + '//' + window.location.host + '/websocket';
   
   // Update status to connecting when attempting connection
   if (window.attackMapDashboard) {
