@@ -13,33 +13,16 @@ from aiohttp import web
 
 # Configuration
 # Within T-Pot: redis_url = 'redis://map_redis:6379'
-# redis_url = 'redis://127.0.0.1:6379'
-# web_port = 1234
+#redis_url = 'redis://127.0.0.1:6379'
+#web_port = 1234
 redis_url = 'redis://map_redis:6379'
 web_port = 64299
-version = 'Attack Map Server 2.2.6'
+version = 'Attack Map Server 3.0.0'
 
-# Color Codes for Attack Map
-service_rgb = {
-    'FTP': '#ff0000',
-    'SSH': '#ff8000',
-    'TELNET': '#ffff00',
-    'EMAIL': '#80ff00',
-    'SQL': '#00ff00',
-    'DNS': '#00ff80',
-    'HTTP': '#00ffff',
-    'HTTPS': '#0080ff',
-    'VNC': '#0000ff',
-    'SNMP': '#8000ff',
-    'SMB': '#bf00ff',
-    'MEDICAL': '#ff00ff',
-    'RDP': '#ff0060',
-    'SIP': '#ffccff',
-    'ADB': '#ffcccc',
-    'OTHER': '#ffffff'
-}
+
 
 async def redis_subscriber(websockets):
+    was_disconnected = False
     while True:
         try:
             # Create a Redis connection
@@ -49,22 +32,29 @@ async def redis_subscriber(websockets):
             # Subscribe to a Redis channel
             channel = "attack-map-production"
             await pubsub.subscribe(channel)
-            print("[*] Redis connection established.")
+            
+            # Print reconnection message if we were previously disconnected
+            if was_disconnected:
+                print("[*] Redis connection re-established")
+                was_disconnected = False
+            
             # Start a loop to listen for messages on the channel
             while True:
                 message = await pubsub.get_message(ignore_subscribe_messages=True)
                 if message:
                     try:
                         # Only take the data and forward as JSON to the connected websocket clients
-                        json_data = json.dumps(json.loads(message['data']))
+                        # Decode bytes directly instead of load/dump cycle
+                        json_data = message['data'].decode('utf-8')
                         # Process all connected websockets in parallel
-                        await asyncio.gather(*[ws.send_str(json_data) for ws in websockets])
+                        await asyncio.gather(*[ws.send_str(json_data) for ws in websockets], return_exceptions=True)
                     except:
                         print("Something went wrong while sending JSON data.")
                 else:
                     await asyncio.sleep(0.1)
         except redis.RedisError as e:
-            print("[ ] Waiting for Redis ...")
+            print(f"[ ] Connection lost to Redis ({type(e).__name__}), retrying...")
+            was_disconnected = True
             await asyncio.sleep(5)
 
 async def my_websocket_handler(request):
@@ -78,11 +68,11 @@ async def my_websocket_handler(request):
         elif msg.type == web.WSMsgType.ERROR:
             print(f'WebSocket connection closed with exception {ws.exception()}')
     request.app['websockets'].remove(ws)
-    print(f"[ ] WebSocket connection closed. Clients active: {len(request.app['websockets'])}")
+    print(f"[-] WebSocket connection closed. Clients active: {len(request.app['websockets'])}")
     return ws
 
 async def my_index_handler(request):
-    return web.FileResponse('index.html')
+    return web.FileResponse('static/index.html')
 
 async def start_background_tasks(app):
     app['websockets'] = []
@@ -91,6 +81,24 @@ async def start_background_tasks(app):
 async def cleanup_background_tasks(app):
     app['redis_subscriber'].cancel()
     await app['redis_subscriber']
+
+async def check_redis_connection():
+    """Check Redis connection on startup and wait until available."""
+    print("[*] Checking Redis connection...")
+    waiting_printed = False
+    
+    while True:
+        try:
+            r = redis.Redis.from_url(redis_url)
+            await r.ping()  # Simple connection test
+            await r.aclose()  # Clean up test connection
+            print("[*] Redis connection established")
+            return True
+        except Exception as e:
+            if not waiting_printed:
+                print(f"[...] Waiting for Redis... (Error: {type(e).__name__})")
+                waiting_printed = True
+            await asyncio.sleep(5)
 
 async def make_webapp():
     app = web.Application()
@@ -107,4 +115,8 @@ async def make_webapp():
 
 if __name__ == '__main__':
     print(version)
+    # Check Redis connection on startup
+    asyncio.run(check_redis_connection())
+    print("[*] Starting web server...\n")
     web.run_app(make_webapp(), port=web_port)
+    

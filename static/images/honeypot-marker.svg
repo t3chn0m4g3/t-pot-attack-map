@@ -1,0 +1,84 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="48" height="64" viewBox="0 0 48 64">
+  <defs>
+    <!-- Enhanced 3D gradient with depth -->
+    <linearGradient id="markerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6BB3;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#FF47A3;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#E20074;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A8005A;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Radial gradient for 3D sphere effect -->
+    <radialGradient id="sphereGradient" cx="30%" cy="25%" r="70%">
+      <stop offset="0%" style="stop-color:#FFADD6;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#FF47A3;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#E20074;stop-opacity:0.3" />
+    </radialGradient>
+    
+    <!-- Enhanced shadow with multiple layers -->
+    <filter id="shadow" x="-100%" y="-100%" width="300%" height="300%">
+      <!-- Main shadow -->
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/>
+      <!-- Secondary soft shadow -->
+      <feDropShadow dx="1" dy="8" stdDeviation="6" flood-color="#000000" flood-opacity="0.2"/>
+      <!-- Depth shadow -->
+      <feDropShadow dx="0" dy="12" stdDeviation="8" flood-color="#000000" flood-opacity="0.1"/>
+    </filter>
+    <!-- Mask for creating transparent center hole -->
+    <mask id="donutMask">
+      <rect width="100%" height="100%" fill="white"/>
+      <!-- Cut out center hole -->
+      <circle cx="24" cy="20" r="7" fill="black"/>
+    </mask>
+    
+    <!-- Inner shadow for the hole -->
+    <filter id="innerShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feOffset dx="0" dy="0"/>
+      <feGaussianBlur stdDeviation="2" result="offset-blur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.4"/>
+      <feComposite in2="offset-blur" operator="in"/>
+      <feComposite in2="SourceGraphic" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Base shadow for depth -->
+  <ellipse cx="24" cy="58" rx="12" ry="4" 
+           fill="#000000" 
+           opacity="0.2"/>
+  
+  <!-- Main marker shape with donut hole -->
+  <path d="M24 4 C15 4 8 11 8 20 C8 32 24 56 24 56 C24 56 40 32 40 20 C40 11 33 4 24 4 Z" 
+        fill="url(#markerGradient)" 
+        stroke="transparent" 
+        stroke-width="2" 
+        filter="url(#shadow)"
+        mask="url(#donutMask)"/>
+  
+  <!-- 3D sphere overlay with hole -->
+  <circle cx="24" cy="20" r="14" 
+          fill="url(#sphereGradient)" 
+          opacity="0.6"
+          mask="url(#donutMask)"/>
+  
+  <!-- Inner rim of the hole for 3D depth -->
+  <circle cx="24" cy="20" r="7" 
+          fill="none" 
+          stroke="#A8005A" 
+          stroke-width="1.5" 
+          opacity="0.8"/>
+  
+  <!-- Outer edge highlight for 3D rim effect -->
+  <circle cx="24" cy="20" r="8.5" 
+          fill="none" 
+          stroke="#FF6BB3" 
+          stroke-width="0.5" 
+          opacity="0.6"/>
+  
+  <!-- Pulse ring -->
+  <circle cx="24" cy="20" r="12" 
+          fill="none" 
+          stroke="#E20074" 
+          stroke-width="1" 
+          opacity="0.4" 
+          class="pulse-ring"/>
+</svg>
